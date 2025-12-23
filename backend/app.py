@@ -6,15 +6,9 @@ from model import chatbot_enhanced
 
 
 app = Flask(__name__)
-CORS(app, resources={
-    r"/*": {
-        "origins": [
-            "https://ai-chatbot-1-8fde.onrender.com/", 
-            "http://localhost:5173",  # for local development
-            "http://localhost:3000"
-        ]
-    }
-})
+CORS(app, resources={r"/*": {"origins": "*"}})
+
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -25,6 +19,7 @@ def chat():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
