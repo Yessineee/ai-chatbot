@@ -11,6 +11,26 @@ from handle_functions import *
 import re
 import random
 
+
+import ssl
+
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+
+# Download required NLTK data
+print("Downloading NLTK data...")
+nltk.download('punkt', quiet=True)
+nltk.download('punkt_tab', quiet=True)
+nltk.download('stopwords', quiet=True)
+nltk.download('wordnet', quiet=True)
+nltk.download('omw-1.4', quiet=True)
+print("NLTK data downloaded successfully!")
+
+
 stop_words = set(stopwords.words("french")) | set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
 
@@ -178,5 +198,6 @@ def chatbot_enhanced(message,threshold=0.3):
             responses.append(chatbot_with_fallback(q, threshold))
 
     return " ".join(responses)
+
 
 
