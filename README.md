@@ -38,5 +38,18 @@ rule-based logic, exposed through a REST API and a modern web interface.
 
 ---
 
-## 🏗️ Architecture Overview
+### Backend
+``bash
+cd backend
+pip install -r requirements.txt
+python app.py
 
+
+### Frontend
+cd frontend
+npm install
+npm run dev
+
+---
+
+🚧 This project is under active development. Improvements will be added gradually.
