@@ -13,6 +13,7 @@ import random
 
 
 import ssl
+import os
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context
@@ -21,14 +22,30 @@ except AttributeError:
 else:
     ssl._create_default_https_context = _create_unverified_https_context
 
-# Download required NLTK data
+# Set NLTK data path for deployment
+nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
+if not os.path.exists(nltk_data_dir):
+    os.makedirs(nltk_data_dir)
+nltk.data.path.append(nltk_data_dir)
+
+# Download required NLTK data with error handling
 print("Downloading NLTK data...")
-nltk.download('punkt', quiet=True)
-nltk.download('punkt_tab', quiet=True)
-nltk.download('stopwords', quiet=True)
-nltk.download('wordnet', quiet=True)
-nltk.download('omw-1.4', quiet=True)
-print("NLTK data downloaded successfully!")
+datasets = ['punkt', 'punkt_tab', 'stopwords', 'wordnet', 'omw-1.4']
+
+for dataset in datasets:
+    try:
+        nltk.data.find(f'tokenizers/{dataset}')
+        print(f"{dataset} already downloaded")
+    except LookupError:
+        try:
+            nltk.data.find(f'corpora/{dataset}')
+            print(f"{dataset} already downloaded")
+        except LookupError:
+            print(f"Downloading {dataset}...")
+            nltk.download(dataset, download_dir=nltk_data_dir)
+            print(f"{dataset} downloaded successfully!")
+
+print("All NLTK data ready!")
 
 
 stop_words = set(stopwords.words("french")) | set(stopwords.words("english"))
@@ -198,6 +215,7 @@ def chatbot_enhanced(message,threshold=0.3):
             responses.append(chatbot_with_fallback(q, threshold))
 
     return " ".join(responses)
+
 
 
 
