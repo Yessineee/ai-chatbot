@@ -21,31 +21,30 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 
-    'http://localhost:5173,http://localhost:3000'
-).split(',')
+# Configuration from environment variables
 ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
-
-if ENVIRONMENT == 'production':
-    # Strict CORS, no debug logs
-    app.config['DEBUG'] = False
-    logging.basicConfig(level=logging.INFO)
-else:
-    #For dev
-    app.config['DEBUG'] = True
-    logging.basicConfig(level=logging.DEBUG)
-
 MAX_MESSAGE_LENGTH = int(os.getenv('MAX_MESSAGE_LENGTH', '1000'))
 API_VERSION = "1.0.0"
 
-CORS(app, resources={
-    r"/*": {
-        "origins": ALLOWED_ORIGINS,
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"]
-    }
-})
+ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 
+    'http://localhost:5173,http://localhost:3000'
+).split(',')
 
+if ENVIRONMENT == 'production':
+    # Strict CORS, no debug logs
+    logger.info(f"Production mode - CORS restricted to: {ALLOWED_ORIGINS}")
+    CORS(app, resources={
+        r"/*": {
+            "origins": ALLOWED_ORIGINS,
+            "methods": ["GET", "POST", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type"]
+        }
+    })
+    
+else:
+    logger.info("Development mode - CORS allowing all origins")
+    CORS(app)  # Allow all in development
+    
 
 def validate_request(required_fields=None):
     
@@ -208,7 +207,6 @@ def chat():
 @app.route('/history/<session_id>', methods=['GET'])
 @handle_errors
 def get_history(session_id):
-    
     limit = request.args.get('limit', 10, type=int)
 
     # Validate limit
@@ -227,7 +225,6 @@ def get_history(session_id):
 @app.route('/session/<session_id>', methods=['DELETE'])
 @handle_errors
 def clear_session(session_id):
-    
     success = session_manager.clear_session(session_id)
 
     if success:
@@ -244,7 +241,6 @@ def clear_session(session_id):
 
 @app.route('/stats', methods=['GET'])
 def get_stats():
-    
     stats = session_manager.get_stats()
     return jsonify({
         "stats": stats,
@@ -305,6 +301,7 @@ if __name__ == '__main__':
     logger.info("Starting chatbot server...")
     logger.info(f"API Version: {API_VERSION}")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
 
