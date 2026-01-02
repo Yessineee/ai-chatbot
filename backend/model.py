@@ -10,9 +10,15 @@ from data import reponses,questions, labels,ops
 from handle_functions import *
 import re
 import random
+import pickle
+import logging
+from pathlib import Path
 
 import ssl
 import os
+
+
+
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context
@@ -47,21 +53,7 @@ for dataset in datasets:
 print("All NLTK data ready!")
 
 
-# model.py
 
-from nltk.tokenize import word_tokenize
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from data import reponses,questions, labels,ops
-from handle_functions import *
-import re
-import random
-import pickle
-import os
-import logging
-from pathlib import Path
 
 
 
@@ -151,16 +143,7 @@ def calc(expr):
 # -----------------------
 
 def train_model(intents):
-    """
-    Train the ML model.
-
-    Args:
-        intents: Training data
-
-    Returns:
-        tuple: (vectorizer, model)
-    """
-
+   
     logger.info("Training model...")
 
     try:
@@ -190,14 +173,7 @@ def train_model(intents):
 
 
 def save_model(vectorizer, model, path=MODEL_PATH):
-    """
-    Save trained model to disk.
-
-    Args:
-        vectorizer: Trained vectorizer
-        model: Trained model
-        path: Path to save model
-    """
+    
     try:
         # Create directory if it doesn't exist
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -218,15 +194,7 @@ def save_model(vectorizer, model, path=MODEL_PATH):
 
 
 def load_model(path=MODEL_PATH):
-    """
-    Load trained model from disk.
-
-    Args:
-        path: Path to model file
-
-    Returns:
-        tuple: (vectorizer, model) or None if failed
-    """
+    
     try:
         if not path.exists():
             logger.warning(f"Model file not found at {path}")
@@ -244,15 +212,7 @@ def load_model(path=MODEL_PATH):
 
 
 def get_or_train_model(intents):
-    """
-    Load model from disk or train if not available.
-
-    Args:
-        intents: Training data (used if training needed)
-
-    Returns:
-        tuple: (vectorizer, model)
-    """
+    
     # Try to load existing model
     result = load_model()
 
@@ -434,4 +394,5 @@ if __name__ == "__main__":
     save_model(vec, mod)
 
     print(f"Model trained and saved to {MODEL_PATH}")
+
 
