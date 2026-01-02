@@ -1,7 +1,12 @@
-import { Bot, Sparkles } from "lucide-react";
+import { Bot, Sparkles, Trash2 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
-const ChatHeader = () => {
+
+interface ChatHeaderProps {
+  onClearChat?: () => void;
+}
+
+const ChatHeader = ({ onClearChat }: ChatHeaderProps) => {
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm px-6 py-4">
       <div className="max-w-3xl mx-auto flex items-center gap-3">
@@ -18,6 +23,17 @@ const ChatHeader = () => {
           </h1>
           <p className="text-xs text-muted-foreground">Always here to help</p>
         </div>
+
+        {onClearChat && (
+          <button
+            onClick={onClearChat}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 hover:text-red-300 transition-all duration-200 text-sm"
+            title="Effacer la conversation"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span className="hidden sm:inline">Clear</span>
+          </button>
+        )}
         <ThemeToggle />
       </div>
     </header>
