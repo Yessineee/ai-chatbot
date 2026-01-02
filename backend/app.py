@@ -2,7 +2,7 @@
 
 from flask import Flask, request, jsonify,Response
 from flask_cors import CORS
-from session_manager import session_manager
+from session_manager import SessionManager
 from model import chatbot_enhanced
 import logging
 import uuid
@@ -310,6 +310,7 @@ if __name__ == '__main__':
     logger.info("Starting chatbot server...")
     logger.info(f"API Version: {API_VERSION}")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
 
