@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import uuid
 import threading
 from typing import Dict, Optional
+import os 
 
 SESSION_TIMEOUT = int(os.getenv('SESSION_TIMEOUT_MINUTES', '30'))
 session_manager = SessionManager(session_timeout_minutes=SESSION_TIMEOUT)
@@ -194,3 +195,4 @@ if __name__ == "__main__":
     stats = session_manager.get_stats()
 
     print(f"Stats: {stats}")
+
