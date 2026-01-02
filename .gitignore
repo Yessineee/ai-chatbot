@@ -1,5 +1,44 @@
+# Python
 __pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+.Python
+*.so
+*.egg-info/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Logs
+*.log
+app.log
+chatbot.log
+
+# Environment variables
 .env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model files (we'll retrain on server)
+models/*.pkl
+
+# Test outputs
+debug_output.txt
+server_output.txt
+
+__pycache__/
 uploads/
 node_modules/
 dist/
