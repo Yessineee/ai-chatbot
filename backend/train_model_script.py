@@ -1,10 +1,4 @@
-"""
-Script to train and save the chatbot model.
-Run this once to create the trained model file.
 
-Usage:
-    python train_model_script.py
-"""
 
 import sys
 from pathlib import Path
@@ -20,7 +14,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Import your model training function
 try:
     from model import train_model, save_model, preprocess, MODEL_PATH
     from data import questions, labels
@@ -31,18 +24,7 @@ except ImportError as e:
 
 
 def evaluate_model(vectorizer, model, X, y):
-    """
-    Evaluate model performance.
-
-    Args:
-        vectorizer: Trained vectorizer
-        model: Trained model
-        X: Test features (text)
-        y: Test labels
-
-    Returns:
-        dict: Evaluation metrics
-    """
+    
     logger.info("Evaluating model...")
 
     # Transform test data
@@ -149,4 +131,5 @@ def main():
 
 if __name__ == "__main__":
     success = main()
+
     sys.exit(0 if success else 1)
