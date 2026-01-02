@@ -175,6 +175,7 @@ def train_model(intents):
 def save_model(vectorizer, model, path=MODEL_PATH):
     
     try:
+        path = Path(path)
         # Create directory if it doesn't exist
         path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -196,6 +197,7 @@ def save_model(vectorizer, model, path=MODEL_PATH):
 def load_model(path=MODEL_PATH):
     
     try:
+        path = Path(path)
         if not path.exists():
             logger.warning(f"Model file not found at {path}")
             return None
@@ -394,5 +396,6 @@ if __name__ == "__main__":
     save_model(vec, mod)
 
     print(f"Model trained and saved to {MODEL_PATH}")
+
 
 
