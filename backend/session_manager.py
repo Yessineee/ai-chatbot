@@ -8,6 +8,8 @@ import uuid
 import threading
 from typing import Dict, Optional
 
+SESSION_TIMEOUT = int(os.getenv('SESSION_TIMEOUT_MINUTES', '30'))
+session_manager = SessionManager(session_timeout_minutes=SESSION_TIMEOUT)
 
 class SessionManager:
     """
@@ -28,14 +30,8 @@ class SessionManager:
 
 
     def create_session(self) -> str:
-        """
-        Create a new session and return its ID.
-
-        Returns:
-            str: Unique session ID
-        """
+    
         session_id = str(uuid.uuid4())
-
         with self.lock:
             self.sessions[session_id] = {
                 "last_intent": None,
@@ -49,16 +45,7 @@ class SessionManager:
 
 
     def get_session(self, session_id: str) -> Optional[Dict]:
-        """
-        Get session data for a user.
-        Creates new session if it doesn't exist or expired.
-
-        Args:
-            session_id: The session identifier
-
-        Returns:
-            dict: Session data or None if invalid
-        """
+        
         with self.lock:
             # Check if session exists
             if session_id not in self.sessions:
@@ -91,16 +78,7 @@ class SessionManager:
             return session
 
     def update_session(self, session_id: str, **kwargs) -> bool:
-        """
-        Update session data.
-
-        Args:
-            session_id: The session identifier
-            **kwargs: Key-value pairs to update (email, last_intent, etc.)
-
-        Returns:
-            bool: True if successful, False otherwise
-        """
+        
         with self.lock:
             session = self.get_session(session_id)
             if not session:
@@ -115,20 +93,8 @@ class SessionManager:
             session["last_activity"] = datetime.now()
             return True
 
-    def add_to_history(self, session_id: str, user_message: str,
-                       bot_response: str, intent: str = None) -> bool:
-        """
-        Add a conversation exchange to history.
-
-        Args:
-            session_id: The session identifier
-            user_message: What the user said
-            bot_response: What the bot replied
-            intent: Detected intent (optional)
-
-        Returns:
-            bool: True if successful
-        """
+    def add_to_history(self, session_id: str, user_message: str,bot_response: str, intent: str = None) -> bool:
+       
         with self.lock:
             session = self.get_session(session_id)
             if not session:
@@ -149,16 +115,7 @@ class SessionManager:
             return True
 
     def get_history(self, session_id: str, limit: int = 10) -> list:
-        """
-        Get conversation history for a session.
-
-        Args:
-            session_id: The session identifier
-            limit: Maximum number of messages to return
-
-        Returns:
-            list: List of conversation exchanges
-        """
+       
         with self.lock:
             session = self.get_session(session_id)
             if not session:
@@ -168,15 +125,7 @@ class SessionManager:
             return history[-limit:] if history else []
 
     def clear_session(self, session_id: str) -> bool:
-        """
-        Clear/delete a session.
-
-        Args:
-            session_id: The session identifier
-
-        Returns:
-            bool: True if session was deleted
-        """
+        
         with self.lock:
             if session_id in self.sessions:
                 del self.sessions[session_id]
@@ -184,10 +133,7 @@ class SessionManager:
             return False
 
     def cleanup_expired_sessions(self):
-        """
-        Remove all expired sessions.
-        Should be called periodically (e.g., every hour).
-        """
+    
         with self.lock:
             now = datetime.now()
             expired = [
@@ -201,12 +147,7 @@ class SessionManager:
             return len(expired)
 
     def get_stats(self) -> Dict:
-        """
-        Get statistics about active sessions.
-
-        Returns:
-            dict: Stats including total sessions, active users, etc.
-        """
+       
         with self.lock:
             total = len(self.sessions)
             now = datetime.now()
@@ -251,4 +192,5 @@ if __name__ == "__main__":
 
     # Get stats
     stats = session_manager.get_stats()
+
     print(f"Stats: {stats}")
