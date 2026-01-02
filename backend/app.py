@@ -116,11 +116,17 @@ def home():
 
 @app.route('/health', methods=['GET'])
 def health():
+    from model import vectorizer, model
+    
     """Detailed health check"""
+    model_exists = os.path.exists('models/chatbot_model.pkl')
+    model_loaded = (vectorizer is not None and model is not None)
     stats = session_manager.get_stats()
     return jsonify({
         "status": "healthy",
         "version": API_VERSION,
+        model_exists_on_disk": model_exists,
+        "model_loaded_in_memory": model_loaded,
         "sessions": stats,
         "timestamp": datetime.utcnow().isoformat()
     })
@@ -304,6 +310,7 @@ if __name__ == '__main__':
     logger.info("Starting chatbot server...")
     logger.info(f"API Version: {API_VERSION}")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
 
