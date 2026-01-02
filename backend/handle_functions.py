@@ -4,13 +4,10 @@ from data import time,bye
 import random
 import re
 
-conversation_context = {
-    "last_intent": None,
-    "email": None
-}
 
 
 def normalize_text(text):
+
     return ''.join(
         c for c in unicodedata.normalize('NFD', text)
         if unicodedata.category(c) != 'Mn'
@@ -20,20 +17,26 @@ def normalize_text(text):
 
 
 
-def handle_email_recall(message):
+def handle_email_recall(message,session):
+
     msg = normalize_text(message)
 
     if any(expr in msg for expr in [
-        "what is my email", "quel est mon email", "mon email"
+        "what is my email", "quel est mon email", "mon email",
+        "my email", "rappelle mon email", "recall my email"
     ]):
-        if conversation_context.get("email"):
-            return f"Votre email est : {conversation_context['email']}"
+
+        email = session.get("email")
+        if email:
+            return f"Votre email est : {email}"
         else:
-            return "Je n’ai pas encore votre email. Vous pouvez me le donner 😊"
+            return "Je n'ai pas encore votre email. Vous pouvez me le donner 😊"
 
     return None
 
+
 def handle_goodbye(message):
+
     msg=message.lower()
     hour = datetime.now().hour
 
@@ -70,12 +73,18 @@ def handle_datetime(message):
 
 
 def handle_email(message):
+
     email_pattern = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
     match = re.search(email_pattern, message)
 
     if match:
         email = match.group()
-        conversation_context["email"] = email
-        return f"Merci, j’ai bien enregistré votre email : {email}"
+        confirmation=f"Merci, j’ai bien enregistré votre email : {email}"
+        return confirmation,email
 
-    return None
+    return None,None
+
+def validate_email(email):
+
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    return re.match(pattern, email) is not None
