@@ -125,7 +125,7 @@ def health():
     return jsonify({
         "status": "healthy",
         "version": API_VERSION,
-        model_exists_on_disk": model_exists,
+        "model_exists_on_disk": model_exists,
         "model_loaded_in_memory": model_loaded,
         "sessions": stats,
         "timestamp": datetime.utcnow().isoformat()
@@ -310,6 +310,7 @@ if __name__ == '__main__':
     logger.info("Starting chatbot server...")
     logger.info(f"API Version: {API_VERSION}")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
 
