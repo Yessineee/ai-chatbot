@@ -25,6 +25,9 @@ app = Flask(__name__)
 ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
 MAX_MESSAGE_LENGTH = int(os.getenv('MAX_MESSAGE_LENGTH', '1000'))
 API_VERSION = "1.0.0"
+SESSION_TIMEOUT = int(os.getenv('SESSION_TIMEOUT_MINUTES', '30'))
+session_manager = SessionManager(session_timeout_minutes=SESSION_TIMEOUT)
+
 
 ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 
     'http://localhost:5173,http://localhost:3000'
@@ -301,6 +304,7 @@ if __name__ == '__main__':
     logger.info("Starting chatbot server...")
     logger.info(f"API Version: {API_VERSION}")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
 
