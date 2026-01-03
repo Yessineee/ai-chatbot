@@ -318,7 +318,6 @@ def chatbot_with_fallback(message,session,threshold=0.3):
 
 
 def chatbot_enhanced(message,session,threshold=0.3):
-    print("ENTER chatbot_enhanced")
     try:
         # Input validation
         if not message or not message.strip():
@@ -376,7 +375,6 @@ def chatbot_enhanced(message,session,threshold=0.3):
 
             # Use the last detected intent as the main intent
             detected_intent = intents[-1] if intents else None
-        print("EXIT chatbot_enhanced")
         return " ".join(responses), detected_intent, email_extracted
 
     except Exception as e:
@@ -396,6 +394,7 @@ if __name__ == "__main__":
     save_model(vec, mod)
 
     print(f"Model trained and saved to {MODEL_PATH}")
+
 
 
 
