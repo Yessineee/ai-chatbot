@@ -172,9 +172,8 @@ def chat():
     print("CHAT ENDPOINT HIT")
     
     try:
-        print("ABOUT TO CALL chatbot_enhanced")
         response, detected_intent, email_extracted = chatbot_enhanced(message,session,threshold=0.3)
-        print("chatbot_enhanced RETURNED")
+        
 
     except Exception as e:
         logger.error(f"Error getting chatbot response: {e}", exc_info=True)
@@ -310,6 +309,7 @@ if __name__ == '__main__':
     logger.info("Starting chatbot server...")
     logger.info(f"API Version: {API_VERSION}")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
 
