@@ -212,7 +212,7 @@ def load_model(path=MODEL_PATH):
         return None
 
 
-def get_or_train_model(intents):
+def get_or_train_model():
     
     # Try to load existing model
     result = load_model()
@@ -316,8 +316,11 @@ def chatbot_with_fallback(message,session,threshold=0.2):
     
         # Check if model is available
         if vectorizer is None or model is None:
-            logger.error("Model not loaded!")
-            return "Le modèle n'est pas disponible. Veuillez réessayer plus tard.", None
+            logger.error("Model not loaded! Using fallback response.")
+            response = reponses.get("unknown", ["Je ne comprends pas votre question. Pouvez-vous reformuler ?"])
+            if isinstance(response, list):
+                response = random.choice(response)
+            return response, "unknown"
     
     
         message_clean = nettoyer(message)
@@ -464,6 +467,7 @@ if __name__ == "__main__":
     save_model(vec, mod)
 
     print(f"Model trained and saved to {MODEL_PATH}")
+
 
 
 
