@@ -244,8 +244,8 @@ except Exception as e:
 # -----------------------
 
 def rule_based_intent(message):
-
-        try:
+    
+    try:
         msg = normalize_text(message)
 
         if any(expr in msg for expr in ["hello", "hi", "hey", "bonjour", "salut","good morning", "good afternoon" ]):
@@ -300,48 +300,48 @@ def rule_based_intent(message):
 
 
 def chatbot_with_fallback(message,session,threshold=0.2):
-
-        try:
-            logger.debug(f"chatbot_with_fallback called with: '{message}'")
-            logger.debug("Checking rule-based classification...")
     
-            forced_intent = rule_based_intent(message)
-            if forced_intent:
-                logger.debug(f"Rule-based matched intent: {forced_intent}")
-                response = reponses.get(forced_intent, reponses.get("unknown", "Je ne comprends pas."))
-                if isinstance(response, list):
-                    response=random.choice(response)
-                return response,forced_intent
+    try:
+        
+        logger.debug(f"chatbot_with_fallback called with: '{message}'")
+        logger.debug("Checking rule-based classification...")
     
-            # Check if model is available
-            if vectorizer is None or model is None:
-                logger.error("Model not loaded!")
-                return "Le modèle n'est pas disponible. Veuillez réessayer plus tard.", None
-    
-    
-            message_clean = nettoyer(message)
-            vect = vectorizer.transform([message_clean])
-    
-            proba = model.predict_proba(vect)[0]
-            max_prob = max(proba)
-            intention = model.classes_[proba.argmax()]
-    
-            if max_prob < threshold:
-    
-                # Use context if available
-                last_intent = session.get("last_intent")
-                if last_intent and last_intent != "unknown":
-                    intention = last_intent
-                    logger.info(f"Low confidence ({max_prob:.2f}), using context: {intention}")
-                else:
-                    return reponses.get("unknown", "Je ne suis pas sûr de comprendre. Pouvez-vous reformuler ?"), None
-    
-            response = reponses.get(intention, reponses.get("unknown", "Je ne comprends pas."))
-    
+         forced_intent = rule_based_intent(message)
+        if forced_intent:
+            logger.debug(f"Rule-based matched intent: {forced_intent}")
+            response = reponses.get(forced_intent, reponses.get("unknown", "Je ne comprends pas."))
             if isinstance(response, list):
                 response=random.choice(response)
+            return response,forced_intent
     
-            return response,intention
+        # Check if model is available
+        if vectorizer is None or model is None:
+            logger.error("Model not loaded!")
+            return "Le modèle n'est pas disponible. Veuillez réessayer plus tard.", None
+    
+    
+        message_clean = nettoyer(message)
+        vect = vectorizer.transform([message_clean])
+    
+        proba = model.predict_proba(vect)[0]
+        max_prob = max(proba)
+        intention = model.classes_[proba.argmax()]
+    
+        if max_prob < threshold:
+            # Use context if available
+            last_intent = session.get("last_intent")
+            if last_intent and last_intent != "unknown":
+                intention = last_intent
+                logger.info(f"Low confidence ({max_prob:.2f}), using context: {intention}")
+            else:
+                return reponses.get("unknown", "Je ne suis pas sûr de comprendre. Pouvez-vous reformuler ?"), None
+    
+        response = reponses.get(intention, reponses.get("unknown", "Je ne comprends pas."))
+    
+        if isinstance(response, list):
+            response=random.choice(response)
+    
+        return response,intention
 
     except Exception as e:
         logger.error(f"Error in chatbot_with_fallback: {e}")
@@ -350,100 +350,100 @@ def chatbot_with_fallback(message,session,threshold=0.2):
 
 
 def chatbot_enhanced(message,session,threshold=0.2):
+    
+    try:
+        
+        logger.debug(f"chatbot_enhanced called with message: '{message[:50]}...'")
+    
+        # Input validation
+        if not message or not message.strip():
+            return "Veuillez entrer un message.", None, None
+    
+        if len(message) > 1000:
+            return "Votre message est trop long (maximum 1000 caractères).", None, None
+    
+        responses = []
+        intents=[]
+        detected_intent = None
+        extracted_email = None
+    
         try:
-            logger.debug(f"chatbot_enhanced called with message: '{message[:50]}...'")
+            # Check for email extraction
+            logger.debug("Checking for email extraction...")
+            email_response, extracted_email = handle_email(message)
+            if email_response:
+                logger.info(f"Email extracted: {extracted_email}")
+                return email_response, "email_extraction", extracted_email
     
-            # Input validation
-            if not message or not message.strip():
-                return "Veuillez entrer un message.", None, None
+        except Exception as e:
+            logger.error(f"Email extraction error: {e}")
     
-            if len(message) > 1000:
-                return "Votre message est trop long (maximum 1000 caractères).", None, None
+        try:
+            # Check for email recall
+            logger.debug("Checking for email recall...")
+            recall = handle_email_recall(message, session)
+            if recall:
+                logger.info("Email recall triggered")
+                return recall, "email_recall", None
+        except Exception as e:
+            logger.error(f"Email recall error: {e}")
     
-            responses = []
-            intents=[]
-            detected_intent = None
-            extracted_email = None
+        # Split into multiple questions
+        logger.debug("Splitting message into questions...")
+        questions = re.split(r'[?.!]| et |,', message)
+        questions = [q.strip() for q in questions if q.strip()]
+        logger.debug(f"Split into {len(questions)} questions: {questions}")
     
+    
+        for q in questions:
             try:
+                
+                # Try Wikipedia search first
+                wiki_response = handle_wikipedia_search(q)
+                if wiki_response:
+                    logger.debug("Wikipedia handler matched")
+                    responses.append(wiki_response)
+                    intents.append("wikipedia_search")
+                    continue
+            except:
+                pass
     
-                # Check for email extraction
-                logger.debug("Checking for email extraction...")
-                email_response, extracted_email = handle_email(message)
-                if email_response:
-                    logger.info(f"Email extracted: {extracted_email}")
-                    return email_response, "email_extraction", extracted_email
+            # Try special handlers
+            date_time_response = handle_datetime(q)
+            if date_time_response:
+                responses.append(date_time_response)
+                intents.append("datetime")
+                continue
+    
+            bye_response = handle_goodbye(q)
+            if bye_response:
+                responses.append(bye_response)
+                intents.append("goodbye")
+                continue
+                
+            calcul = calc(q)
+            if calcul:
+                responses.append(calcul)
+                intents.append("calculator")
+                continue
+                
+            try:
+                response,intent= chatbot_with_fallback(q, session, threshold)
+                if isinstance(response, list):
+                    response = " ".join(response)
+                responses.append(response)
+                if intent:
+                    intents.append(intent)
     
             except Exception as e:
-                logger.error(f"Email extraction error: {e}")
+                logger.error(f"Fallback error: {e}", exc_info=True)
+                responses.append("Erreur de traitement")
     
-            try:
-    
-                # Check for email recall
-                logger.debug("Checking for email recall...")
-                recall = handle_email_recall(message, session)
-                if recall:
-                    logger.info("Email recall triggered")
-                    return recall, "email_recall", None
-            except Exception as e:
-                logger.error(f"Email recall error: {e}")
-    
-            # Split into multiple questions
-            logger.debug("Splitting message into questions...")
-            questions = re.split(r'[?.!]| et |,', message)
-            questions = [q.strip() for q in questions if q.strip()]
-            logger.debug(f"Split into {len(questions)} questions: {questions}")
-    
-    
-            for q in questions:
-                try:
-    
-                    # Try Wikipedia search first
-                    wiki_response = handle_wikipedia_search(q)
-                    if wiki_response:
-                        logger.debug("Wikipedia handler matched")
-                        responses.append(wiki_response)
-                        intents.append("wikipedia_search")
-                        continue
-                except:
-                    pass
-    
-                # Try special handlers
-                date_time_response = handle_datetime(q)
-                if date_time_response:
-                    responses.append(date_time_response)
-                    intents.append("datetime")
-                    continue
-    
-                bye_response = handle_goodbye(q)
-                if bye_response:
-                    responses.append(bye_response)
-                    intents.append("goodbye")
-                    continue
-    
-                calcul = calc(q)
-                if calcul:
-                    responses.append(calcul)
-                    intents.append("calculator")
-                    continue
-    
-                try:
-                    response,intent= chatbot_with_fallback(q, session, threshold)
-                    if isinstance(response, list):
-                        response = " ".join(response)
-                    responses.append(response)
-                    if intent:
-                        intents.append(intent)
-    
-                except Exception as e:
-                    logger.error(f"Fallback error: {e}", exc_info=True)
-                    responses.append("Erreur de traitement")
-    
-            # Use the last detected intent as the main intent
-            detected_intent = intents[-1] if intents else None
-            final_response = " ".join(responses)
-    
-            return final_response, detected_intent, extracted_email
+        # Use the last detected intent as the main intent
+        detected_intent = intents[-1] if intents else None
+        final_response = " ".join(responses)
+        
+        return final_response, detected_intent, extracted_email
 
     except Exception as e:
         logger.error(f"Error in chatbot_enhanced: {e}",exc_info=True)
@@ -452,6 +452,7 @@ def chatbot_enhanced(message,session,threshold=0.2):
 
 # Script to train and save model manually
 if __name__ == "__main__":
+    
     print("Training model...")
     from data import questions, labels
 
@@ -462,6 +463,7 @@ if __name__ == "__main__":
     save_model(vec, mod)
 
     print(f"Model trained and saved to {MODEL_PATH}")
+
 
 
 
