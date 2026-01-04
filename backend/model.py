@@ -61,10 +61,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configuration
-MODEL_VERSION = os.getenv('MODEL_VERSION', '1.0.0')
+MODEL_VERSION = os.getenv('MODEL_VERSION', '1.1.0')
 MODEL_DIR = Path("models")
 MODEL_PATH = MODEL_DIR / "chatbot_model.pkl"
-# MODEL_PATH = os.getenv('MODEL_PATH', 'models/chatbot_model.pkl')
 
 # Initialize
 stop_words = set(stopwords.words("french")) | set(stopwords.words("english"))
@@ -467,6 +466,7 @@ if __name__ == "__main__":
     save_model(vec, mod)
 
     print(f"Model trained and saved to {MODEL_PATH}")
+
 
 
 
