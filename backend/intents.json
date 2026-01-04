@@ -365,7 +365,7 @@
         "Sorry! Let me try to help you better.",
         "I understand. Would you like to try something different?",
         "Désolé ! Comment puis-je mieux vous aider ?",
-        "Je suis désolé. Pouvez-vous me dire ce que je peux améliorer ?",
+        "Je suis désolé. Pouvez-vous me dire ce que je peux améliorer ?"
       ]
     },
     {
@@ -434,11 +434,12 @@
         "Contact us at: 📧 contact@company.com or 📞 +216 XX XXX XXX",
         "Pour nous joindre : Email - contact@entreprise.com | Téléphone - +216 XX XXX XXX",
         "Get in touch: Email us at contact@company.com or call +216 XX XXX XXX",
-        "Vous pouvez nous contacter par email à contact@entreprise.com ou par téléphone au +216 XX XXX XXX.",
+        "Vous pouvez nous contacter par email à contact@entreprise.com ou par téléphone au +216 XX XXX XXX."
       ]
     }
   ]
 
 }
+
 
 
