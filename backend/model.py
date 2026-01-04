@@ -286,11 +286,11 @@ def rule_based_intent(message):
             return "options"
 
         # Positive feedback
-        if msg in ["awesome", "perfect", "excellent", "amazing", "wonderful", "fantastic", "cool", "nice", "super","great"] or any(expr in msg for expr in ["that's great", "that's good", "that's awesome", "that's perfect"]):
+        if msg in ["awesome", "perfect", "excellent", "amazing", "wonderful", "fantastic", "cool", "nice", "super","great","oui"] or any(expr in msg for expr in ["that's great", "that's good", "that's awesome", "that's perfect"]):
             return "positive"
 
         # Negative feedback
-        if msg in ["no", "nope", "bad", "wrong"] or any(expr in msg for expr in ["that's bad", "not good", "that sucks", "don't like", "not helpful", "that's wrong","that's incorrect"]):
+        if msg in ["no", "nope", "bad", "wrong","non"] or any(expr in msg for expr in ["that's bad", "not good", "that sucks", "don't like", "not helpful", "that's wrong","that's incorrect"]):
             return "negative"
 
     except Exception as e:
@@ -467,6 +467,7 @@ if __name__ == "__main__":
     save_model(vec, mod)
 
     print(f"Model trained and saved to {MODEL_PATH}")
+
 
 
 
