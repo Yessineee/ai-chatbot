@@ -306,7 +306,7 @@ def chatbot_with_fallback(message,session,threshold=0.2):
         logger.debug(f"chatbot_with_fallback called with: '{message}'")
         logger.debug("Checking rule-based classification...")
     
-         forced_intent = rule_based_intent(message)
+        forced_intent = rule_based_intent(message)
         if forced_intent:
             logger.debug(f"Rule-based matched intent: {forced_intent}")
             response = reponses.get(forced_intent, reponses.get("unknown", "Je ne comprends pas."))
@@ -328,6 +328,7 @@ def chatbot_with_fallback(message,session,threshold=0.2):
         intention = model.classes_[proba.argmax()]
     
         if max_prob < threshold:
+            
             # Use context if available
             last_intent = session.get("last_intent")
             if last_intent and last_intent != "unknown":
@@ -396,8 +397,8 @@ def chatbot_enhanced(message,session,threshold=0.2):
     
     
         for q in questions:
+            
             try:
-                
                 # Try Wikipedia search first
                 wiki_response = handle_wikipedia_search(q)
                 if wiki_response:
@@ -463,6 +464,7 @@ if __name__ == "__main__":
     save_model(vec, mod)
 
     print(f"Model trained and saved to {MODEL_PATH}")
+
 
 
 
