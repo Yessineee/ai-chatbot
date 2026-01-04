@@ -1,5 +1,3 @@
-# model.py
-
 import nltk
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -81,8 +79,10 @@ def preprocess(text):
         text = text.lower()
         text = re.sub(r"[^\w\s]", "", text)
         words = text.split()
-        words = [w for w in words if w not in stop_words]
-        words = [lemmatizer.lemmatize(w) for w in words]
+        if len(words) <= 3:
+            words = [lemmatizer.lemmatize(w) for w in words]
+        else:
+            words = [lemmatizer.lemmatize(w) for w in words if w not in stop_words]
         return " ".join(words)
     except Exception as e:
         logger.error(f"Error in preprocess: {e}")
@@ -103,8 +103,6 @@ def nettoyer(text):
     except Exception as e:
         logger.error(f"Error in nettoyer: {e}")
         return text.lower()
-
-questions_nettoyees = [nettoyer(q) for q in questions]
 
 
 def split_questions(text):
@@ -144,30 +142,33 @@ def calc(expr):
 # Train ML model
 # -----------------------
 
-def train_model(intents):
-   
-    logger.info("Training model...")
-
+def train_model():
+    
+   logger.info("Training model...")
+    
     try:
-        # Prepare training data
+        # questions and labels are already loaded!
         X = [preprocess(x) for x in questions]
 
-        # Create and train vectorizer
         vectorizer = TfidfVectorizer(
-            analyzer="char_wb",
-            ngram_range=(1, 2),
-            max_df=0.9
-        )
-
+                analyzer="char_wb",
+                ngram_range=(1, 3),
+                max_df=0.8,
+                min_df=1,
+                max_features=5000,
+            )
         X_vec = vectorizer.fit_transform(X)
 
-        # Train model
-        model = LogisticRegression(max_iter=1000)
+        model = LogisticRegression(
+            max_iter=2000,  # Increased iterations
+            C=1.0,  # Regularization
+            class_weight='balanced',  # Handle imbalanced classes
+            random_state=42
+        )
         model.fit(X_vec, labels)
 
-        logger.info("Model trained successfully")
         return vectorizer, model
-
+    
     except Exception as e:
         logger.error(f"Error training model: {e}")
         raise
@@ -233,7 +234,7 @@ def get_or_train_model(intents):
 
 # Initialize model (load or train)
 try:
-    vectorizer, model = get_or_train_model({'intents': []})  # Pass your actual intents here
+    vectorizer, model = get_or_train_model()
 except Exception as e:
     logger.error(f"Failed to initialize model: {e}")
     vectorizer, model = None, None
@@ -246,23 +247,53 @@ except Exception as e:
 
 def rule_based_intent(message):
 
-    try:
+        try:
         msg = normalize_text(message)
 
-        if any(expr in msg for expr in ["hello", "hi", "hey", "bonjour", "salut"]):
-            return "salutation"
+        if any(expr in msg for expr in ["hello", "hi", "hey", "bonjour", "salut","good morning", "good afternoon" ]):
+            return "greeting"
 
         if any(expr in msg for expr in ["how are you", "comment ça va", "ça va", "what's up", "comment ca va","ca va","how are you","how are you doing","whats up"]):
             return "etat"
 
         if any(expr in msg for expr in ["who are you", "qui es-tu", "que fais-tu", "what do you do"]):
-            return "identite"
+            return "about"
 
         if any(word in msg for word in ["horaire", "horaires", "heure", "ouvrir", "fermer","opening hours", "working hours"]):
             return "horaire"
 
+        if any(word in msg for word in ["help", "aide", "assist"]):
+            return "help"
+
         if any(word in msg for word in ["contact", "email", "téléphone", "numero","phone"]):
             return "contact"
+        # Thanks
+        if any(word in msg for word in ["thank", "thanks", "merci", "thx"]):
+            return "thanks"
+
+        # Joke
+        if any(expr in msg for expr in ["tell me a joke", "joke", "make me laugh", "something funny"]):
+            return "joke"
+
+        # Age
+        if any(expr in msg for expr in ["how old", "your age", "when were you created", "when is your birthday"]):
+                return "age"
+
+        # Name
+        if any(expr in msg for expr in ["what is your name", "your name", "what should i call you", "comment tu t'appelles"]):
+            return "name"
+
+        # Options
+        if any(expr in msg for expr in ["what can i ask", "what questions", "show me options", "give me examples", "what are my options"]):
+            return "options"
+
+        # Positive feedback
+        if msg in ["awesome", "perfect", "excellent", "amazing", "wonderful", "fantastic", "cool", "nice", "super","great"] or any(expr in msg for expr in ["that's great", "that's good", "that's awesome", "that's perfect"]):
+            return "positive"
+
+        # Negative feedback
+        if msg in ["no", "nope", "bad", "wrong"] or any(expr in msg for expr in ["that's bad", "not good", "that sucks", "don't like", "not helpful", "that's wrong","that's incorrect"]):
+            return "negative"
 
     except Exception as e:
         logger.error(f"Error in rule_based_intent: {e}")
@@ -270,46 +301,49 @@ def rule_based_intent(message):
     return None
 
 
+def chatbot_with_fallback(message,session,threshold=0.2):
 
-def chatbot_with_fallback(message,session,threshold=0.3):
-
-    forced_intent = rule_based_intent(message)
-    try:
-
-        if forced_intent:
-            response = reponses.get(forced_intent, reponses.get("unknown", "Je ne comprends pas."))
+        try:
+            logger.debug(f"chatbot_with_fallback called with: '{message}'")
+            logger.debug("Checking rule-based classification...")
+    
+            forced_intent = rule_based_intent(message)
+            if forced_intent:
+                logger.debug(f"Rule-based matched intent: {forced_intent}")
+                response = reponses.get(forced_intent, reponses.get("unknown", "Je ne comprends pas."))
+                if isinstance(response, list):
+                    response=random.choice(response)
+                return response,forced_intent
+    
+            # Check if model is available
+            if vectorizer is None or model is None:
+                logger.error("Model not loaded!")
+                return "Le modèle n'est pas disponible. Veuillez réessayer plus tard.", None
+    
+    
+            message_clean = nettoyer(message)
+            vect = vectorizer.transform([message_clean])
+    
+            proba = model.predict_proba(vect)[0]
+            max_prob = max(proba)
+            intention = model.classes_[proba.argmax()]
+    
+            if max_prob < threshold:
+    
+                # Use context if available
+                last_intent = session.get("last_intent")
+                if last_intent and last_intent != "unknown":
+                    intention = last_intent
+                    logger.info(f"Low confidence ({max_prob:.2f}), using context: {intention}")
+                else:
+                    return reponses.get("unknown", "Je ne suis pas sûr de comprendre. Pouvez-vous reformuler ?"), None
+    
+            response = reponses.get(intention, reponses.get("unknown", "Je ne comprends pas."))
+    
             if isinstance(response, list):
-                return random.choice(response)
-            return response,forced_intent
-
-        # Check if model is available
-        if vectorizer is None or model is None:
-            return "Le modèle n'est pas disponible. Veuillez réessayer plus tard.", None
-
-
-        message_clean = nettoyer(message)
-        vect = vectorizer.transform([message_clean])
-
-        proba = model.predict_proba(vect)[0]
-        max_prob = max(proba)
-        intention = model.classes_[proba.argmax()]
-
-        if max_prob < threshold:
-
-            # Use context if available
-            last_intent = session.get("last_intent")
-            if last_intent:
-                intention = last_intent
-                logger.info(f"Low confidence ({max_prob:.2f}), using context: {intention}")
-            else:
-                return reponses.get("unknown", "Je ne suis pas sûr de comprendre. Pouvez-vous reformuler ?"), None
-
-        response = reponses.get(intention, reponses.get("unknown", "Je ne comprends pas."))
-
-        if isinstance(response, list):
-            response=random.choice(response)
-
-        return response,intention
+                response=random.choice(response)
+    
+            return response,intention
 
     except Exception as e:
         logger.error(f"Error in chatbot_with_fallback: {e}")
@@ -317,69 +351,105 @@ def chatbot_with_fallback(message,session,threshold=0.3):
 
 
 
-def chatbot_enhanced(message,session,threshold=0.3):
-    try:
-        # Input validation
-        if not message or not message.strip():
-            return "Veuillez entrer un message.", None, None
-
-        if len(message) > 1000:
-            return "Votre message est trop long (maximum 1000 caractères).", None, None
-
-        responses = []
-        detected_intent = None
-        email_extracted = None
-
-        # Check for email extraction
-        email_response, email_extracted = handle_email(message)
-        if email_response:
-            return email_response, "email_extraction", email_extracted
-
-        # Check for email recall
-        recall = handle_email_recall(message, session)
-        if recall:
-            return recall, "email_recall", None
-
-
-        # Split into multiple questions
-        questions = re.split(r'[?.!]| et |,', message)
-        questions = [q.strip() for q in questions if q.strip()]
-
-        intents=[]
-
-        for q in questions:
-            # Try special handlers first
-            date_time_response = handle_datetime(q)
-            if date_time_response:
-                responses.append(date_time_response)
-                intents.append("datetime")
-                continue
-
-            bye_response = handle_goodbye(q)
-            if bye_response:
-                responses.append(bye_response)
-                intents.append("goodbye")
-                continue
-
-            calcul = calc(q)
-            if calcul:
-                responses.append(calcul)
-                intents.append("calculator")
-                continue
-
-            # Fallback to ML model
-            response, intent = chatbot_with_fallback(q, session, threshold)
-            responses.append(response)
-            if intent:
-                intents.append(intent)
-
+def chatbot_enhanced(message,session,threshold=0.2):
+        try:
+            logger.debug(f"chatbot_enhanced called with message: '{message[:50]}...'")
+    
+            # Input validation
+            if not message or not message.strip():
+                return "Veuillez entrer un message.", None, None
+    
+            if len(message) > 1000:
+                return "Votre message est trop long (maximum 1000 caractères).", None, None
+    
+            responses = []
+            intents=[]
+            detected_intent = None
+            extracted_email = None
+    
+            try:
+    
+                # Check for email extraction
+                logger.debug("Checking for email extraction...")
+                email_response, extracted_email = handle_email(message)
+                if email_response:
+                    logger.info(f"Email extracted: {extracted_email}")
+                    return email_response, "email_extraction", extracted_email
+    
+            except Exception as e:
+                logger.error(f"Email extraction error: {e}")
+    
+            try:
+    
+                # Check for email recall
+                logger.debug("Checking for email recall...")
+                recall = handle_email_recall(message, session)
+                if recall:
+                    logger.info("Email recall triggered")
+                    return recall, "email_recall", None
+            except Exception as e:
+                logger.error(f"Email recall error: {e}")
+    
+            # Split into multiple questions
+            logger.debug("Splitting message into questions...")
+            questions = re.split(r'[?.!]| et |,', message)
+            questions = [q.strip() for q in questions if q.strip()]
+            logger.debug(f"Split into {len(questions)} questions: {questions}")
+    
+    
+            for q in questions:
+                try:
+    
+                    # Try Wikipedia search first
+                    wiki_response = handle_wikipedia_search(q)
+                    if wiki_response:
+                        logger.debug("Wikipedia handler matched")
+                        responses.append(wiki_response)
+                        intents.append("wikipedia_search")
+                        continue
+                except:
+                    pass
+    
+                # Try special handlers
+                date_time_response = handle_datetime(q)
+                if date_time_response:
+                    responses.append(date_time_response)
+                    intents.append("datetime")
+                    continue
+    
+                bye_response = handle_goodbye(q)
+                if bye_response:
+                    responses.append(bye_response)
+                    intents.append("goodbye")
+                    continue
+    
+                calcul = calc(q)
+                if calcul:
+                    responses.append(calcul)
+                    intents.append("calculator")
+                    continue
+    
+                try:
+                    response,intent= chatbot_with_fallback(q, session, threshold)
+                    if isinstance(response, list):
+                        response = " ".join(response)
+                    responses.append(response)
+                    if intent:
+                        intents.append(intent)
+    
+                except Exception as e:
+                    logger.error(f"Fallback error: {e}", exc_info=True)
+                    responses.append("Erreur de traitement")
+    
             # Use the last detected intent as the main intent
             detected_intent = intents[-1] if intents else None
-        return " ".join(responses), detected_intent, email_extracted
+            final_response = " ".join(responses)
+    
+            return final_response, detected_intent, extracted_email
 
     except Exception as e:
-        logger.error(f"Error in chatbot_enhanced: {e}")
-        return "Désolé, une erreur s'est produite. Veuillez réessayer.", None, None
+        logger.error(f"Error in chatbot_enhanced: {e}",exc_info=True)
+        return "Désolé, une erreur s'est produite. Veuillez réessayer.",None,None
 
 
 # Script to train and save model manually
@@ -388,12 +458,13 @@ if __name__ == "__main__":
     from data import questions, labels
 
     # Train model
-    vec, mod = train_model({'intents': []})
+    vec, mod = train_model()
 
     # Save model
     save_model(vec, mod)
 
     print(f"Model trained and saved to {MODEL_PATH}")
+
 
 
 
