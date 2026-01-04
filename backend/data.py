@@ -1,132 +1,11 @@
-intents = {
-    "salutation": [
-        "bonjour",
-        "salut",
-        "bonsoir",
-        "bonjour comment ca va",
-        "salut j'ai une question",
-        "hello",
-        "hi",
-        "hey",
-        "good morning",
-        "good evening"
-    ],
-    "stage": [
-        "je cherche un stage",
-        "stage pfe",
-        "je veux un stage de fin d'etudes",
-        "comment trouver un stage",
-        "je veux faire un stage",
-        "est ce que vous proposez des stages",
-        "je suis etudiant et je cherche un stage pfe",
-        "avez vous des offres de stage",
-        "stage de fin d'études",
-        "comment postuler pour un stage",
-
-        "internship",
-        "i am looking for an internship",
-        "internship opportunity"
-    ],
-    "remerciement": [
-        "merci",
-        "merci beaucoup",
-        "thanks",
-        "je vous remercie"
-    ],
-    "au_revoir": [
-        "au revoir",
-        "bye",
-        "à bientôt",
-        "bonne journée"
-    ],
-    "horaire": [
-        "quels sont vos horaires",
-        "horaire de travail",
-        "heures d'ouverture",
-        "à quelle heure vous ouvrez",
-        "à quelle heure vous fermez",
-        "working hours",
-        "what are your working hours",
-        "opening hours"
-    ],
-    "contact": [
-        "comment vous contacter",
-        "adresse email",
-        "numero de telephone",
-        "contact",
-        "email",
-        "telephone",
-        "numéro",
-        "comment vous contacter",
-        "comment puis-je vous joindre",
-        "how can i contact you",
-        "contact details"
-    ],
-    "unknown": [
-        "asdfgh",
-        "je sais pas",
-        "n'importe quoi",
-        "aucune idée",
-        "blabla"
-    ],
-    "etat": [
-        # French
-        "comment ça va",
-        "comment allez-vous",
-        "ça va",
-        "comment vas-tu",
-
-        # English
-        "how are you",
-        "how are you doing",
-        "are you okay",
-        "what's up"
-    ],
-
-    "identite": [
-        # French
-        "qui es-tu",
-        "c'est quoi ton rôle",
-        "que fais-tu",
-
-        # English
-        "who are you",
-        "what are you",
-        "what do you do"
-    ],
-    "recall_email": [
-        # English
-        "what is my email",
-        "do you remember my email",
-        "tell me my email",
-
-        # French
-        "quel est mon email",
-        "tu te souviens de mon email",
-        "c'est quoi mon email"
-    ]
-}
-reponses = {
-    "salutation": "Bonjour 👋 Je suis l’assistant virtuel de l’entreprise. Comment puis-je vous aider aujourd’hui ?",
-    "stage":(
-            "Nous proposons régulièrement des stages PFE et des stages d’été. "
-            "Vous pouvez consulter nos offres sur notre site officiel ou nous envoyer votre CV."
-    ),
-    "contact": (
-        "Vous pouvez nous contacter par email à contact@entreprise.com "
-        "ou par téléphone au +216 XX XXX XXX."
-    ),
-    "remerciement": "Avec plaisir 😊 N’hésitez pas si vous avez d’autres questions.",
-    "horaire": "Nos horaires sont de 9h à 17h.",
-    "unknown": "Je n’ai pas bien compris votre demande 🤔. Pouvez-vous reformuler ou préciser votre question ? ",
-    "etat": ["Je vais très bien 😊 Merci de demander ! Et vous ?" ,"Tout va bien de mon côté 👍 Comment puis-je vous aider ?"],
-    "identite": "Je suis un assistant virtuel conçu pour répondre à vos questions." "Je suis un chatbot intelligent qui peut vous aider avec des informations générales."
-}
-
-time=["heure","time","wakt","hour","hours"]
-bye=["bye", "revoir", "quitter", "ciao","au revoir","goodbye"]
-
+import json
+import os
 import operator
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Define supported operators
 ops = {
@@ -136,11 +15,141 @@ ops = {
     '/': operator.truediv
 }
 
+# Load intents from JSON file
+intents_file = os.path.join(os.path.dirname(__file__), 'intents.json')
 
+try:
+    with open(intents_file, 'r', encoding='utf-8') as f:
+        intents_data = json.load(f)
+    logger.info(f"✓ Successfully loaded intents from {intents_file}")
+except FileNotFoundError:
+    logger.error(f"Error: {intents_file} not found. Using minimal default data.")
+    intents_data = {
+        "intents": [
+            {
+                "tag": "greeting",
+                "patterns": ["hello", "hi", "hey"],
+                "responses": ["Hello!", "Hi there!"]
+            }
+        ]
+    }
+except json.JSONDecodeError as e:
+    logger.error(f"Error: Invalid JSON in {intents_file}: {e}")
+    intents_data = {"intents": []}
+
+# Initialize data structures
 questions = []
 labels = []
+reponses = {}
 
-for intent, examples in intents.items():
-    for ex in examples:
-        questions.append(ex)
-        labels.append(intent)
+# Process intents
+loaded_intents = []
+missing_responses = []
+
+for intent in intents_data.get('intents', []):
+    tag = intent.get('tag')
+    patterns = intent.get('patterns', [])
+    responses = intent.get('responses', [])
+
+    if not tag:
+        logger.warning(f"Skipping intent without tag: {intent}")
+        continue
+
+    loaded_intents.append(tag)
+
+    # Add patterns to training data
+    if patterns:
+        for pattern in patterns:
+            questions.append(pattern)
+            labels.append(tag)
+    else:
+        logger.warning(f"⚠ Intent '{tag}' has no patterns!")
+
+    # Add responses
+    if responses:
+        reponses[tag] = responses
+    else:
+        logger.warning(f"⚠ Intent '{tag}' has NO responses!")
+        missing_responses.append(tag)
+        # Add default response to prevent crashes
+        reponses[tag] = [f"Je peux vous aider avec {tag}."]
+
+# Ensure 'unknown' intent exists
+if 'unknown' not in reponses:
+    reponses['unknown'] = [
+        "Je n'ai pas bien compris votre demande 🤔. Pouvez-vous reformuler ou préciser votre question ?",
+        "I'm not sure I understand. Could you rephrase that?",
+        "I didn't quite get that. Can you try asking differently?",
+        "Hmm, I'm not sure about that. Can you be more specific?"
+    ]
+
+# Ensure 'etat' intent exists (for "how are you")
+if 'etat' not in reponses:
+    reponses['etat'] = [
+        "Je vais très bien 😊 Merci de demander ! Et vous ?",
+        "Tout va bien de mon côté 👍 Comment puis-je vous aider ?",
+        "I'm doing well, thank you! How can I help you?",
+        "Great, thanks for asking! What can I do for you?",
+        "Je vais bien, merci! Comment puis-je vous aider?"
+    ]
+
+# Additional helper lists
+time = ["heure", "time", "wakt", "hour", "hours", "temps"]
+bye = ["bye", "revoir", "quitter", "ciao", "au revoir", "see you", "goodbye"]
+
+# Statistics and validation
+logger.info("=" * 60)
+logger.info("DATA LOADING SUMMARY")
+logger.info("=" * 60)
+logger.info(f"✓ Loaded {len(questions)} training examples")
+logger.info(f"✓ Number of unique intents: {len(set(labels))}")
+logger.info(f"✓ Intents with responses: {len(reponses)}")
+
+logger.info(f"\n📋 All loaded intents:")
+for intent in sorted(loaded_intents):
+    pattern_count = labels.count(intent)
+    response_count = len(reponses.get(intent, []))
+    logger.info(f"  • {intent}: {pattern_count} patterns, {response_count} responses")
+
+if missing_responses:
+    logger.warning(f"\n⚠ WARNING: These intents have NO responses in intents.json:")
+    for tag in missing_responses:
+        logger.warning(f"  • {tag}")
+    logger.warning("Default responses were added to prevent crashes.")
+
+# Check for common intents that should exist
+required_intents = ['greeting', 'goodbye', 'thanks', 'unknown']
+missing_required = [intent for intent in required_intents if intent not in loaded_intents]
+if missing_required:
+    logger.warning(f"\n⚠ Missing recommended intents: {', '.join(missing_required)}")
+
+logger.info("=" * 60)
+
+# For debugging - run this file directly to see what was loaded
+if __name__ == "__main__":
+    print("\n" + "=" * 60)
+    print("DETAILED DATA INSPECTION")
+    print("=" * 60)
+
+    # Show sample training data
+    print("\n📝 First 10 training samples:")
+    for i in range(min(10, len(questions))):
+        print(f"  {i + 1}. Pattern: '{questions[i][:50]}' → Label: '{labels[i]}'")
+
+    # Show all responses
+    print("\n💬 Sample responses for each intent:")
+    for tag in sorted(reponses.keys()):
+        print(f"\n  {tag.upper()}:")
+        for resp in reponses[tag][:2]:  # Show first 2 responses
+            print(f"    - {resp[:70]}...")
+
+    # Show statistics
+    print("\n📊 Intent distribution:")
+    from collections import Counter
+
+    intent_counts = Counter(labels)
+    for intent, count in intent_counts.most_common():
+        print(f"  {intent}: {count} patterns")
+
+    print("\n✓ Data loading completed successfully!")
+    print("=" * 60)
