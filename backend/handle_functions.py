@@ -3,11 +3,13 @@ from datetime import datetime
 from data import time,bye
 import random
 import re
+import logging
 
 
+
+logger = logging.getLogger(__name__)
 
 def normalize_text(text):
-
     return ''.join(
         c for c in unicodedata.normalize('NFD', text)
         if unicodedata.category(c) != 'Mn'
@@ -15,6 +17,59 @@ def normalize_text(text):
 
 
 
+def handle_wikipedia_search(message):
+    try:
+        import wikipedia
+        # Detect Wikipedia search intent
+        patterns = [
+            r"(?:search|look up|find|tell me about|what is|who is|explain)\s+(?:on\s+)?(?:wikipedia\s+)?(?:for\s+)?(.+)",
+            r"wikipedia\s+(.+)",
+            r"(?:information|info)\s+(?:about|on)\s+(.+)"
+        ]
+
+        query = None
+        for pattern in patterns:
+            match = re.search(pattern, message.lower())
+            if match:
+                query = match.group(1).strip()
+                break
+
+        if not query:
+            return None
+
+        logger.info(f"Wikipedia search for: {query}")
+
+        # Search Wikipedia
+        try:
+            # Get summary (first 3 sentences)
+            summary = wikipedia.summary(query, sentences=3)
+
+            # Get page URL
+            page = wikipedia.page(query)
+            url = page.url
+
+            response = f"{summary}\n\nSource: {url}"
+            return response
+
+        except wikipedia.exceptions.DisambiguationError as e:
+            # Multiple results found
+            options = e.options[:5]  # Show first 5 options
+            return f"Plusieurs résultats trouvés pour '{query}'. Voulez-vous dire: {', '.join(options)}?"
+
+        except wikipedia.exceptions.PageError:
+            return f"Désolé, je n'ai pas trouvé d'article Wikipedia pour '{query}'. Essayez un autre terme."
+
+        except Exception as e:
+            logger.error(f"Wikipedia search error: {e}")
+            return f"Une erreur s'est produite lors de la recherche. Réessayez avec un terme différent."
+
+    except ImportError:
+        logger.warning("Wikipedia module not installed")
+        return "La recherche Wikipedia n'est pas disponible. Installez: pip install wikipedia"
+
+    except Exception as e:
+        logger.error(f"Error in handle_wikipedia_search: {e}")
+        return None
 
 
 def handle_email_recall(message,session):
@@ -32,8 +87,12 @@ def handle_email_recall(message,session):
         else:
             return "Je n'ai pas encore votre email. Vous pouvez me le donner 😊"
 
-    return None
+        # if conversation_context.get("email"):
+        #     return f"Votre email est : {conversation_context['email']}"
+        # else:
+        #     return "Je n’ai pas encore votre email. Vous pouvez me le donner 😊"
 
+    return None
 
 def handle_goodbye(message):
 
@@ -60,7 +119,10 @@ def handle_goodbye(message):
 
     return None
 
+
+
 def handle_datetime(message):
+
     msg = message.lower()
 
     if any(word in msg for word in time):
