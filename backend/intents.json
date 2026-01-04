@@ -73,6 +73,7 @@
     {
       "tag": "goodbye",
       "patterns": [
+        "Bonne nuit",
         "au revoir",
         "bye",
         "à bientôt",
@@ -84,6 +85,7 @@
         "Talk to you later",
         "Gotta go",
         "Take care",
+        "Good night",
         "Catch you later",
         "Au revoir",
         "À bientôt",
@@ -348,3 +350,4 @@
   ]
 
 }
+
