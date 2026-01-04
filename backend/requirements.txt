@@ -14,7 +14,13 @@ nltk>=3.9.1
 # Utilities
 python-dateutil==2.8.2
 
+# External APIs
+wikipedia==1.4.0
+
+
+
 # Testing (for future)
 pytest==7.4.3
 pytest-cov==4.1.0
+
 
