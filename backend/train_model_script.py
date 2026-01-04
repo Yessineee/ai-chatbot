@@ -14,6 +14,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Import your model training function
 try:
     from model import train_model, save_model, preprocess, MODEL_PATH
     from data import questions, labels
@@ -24,7 +25,7 @@ except ImportError as e:
 
 
 def evaluate_model(vectorizer, model, X, y):
-    
+   
     logger.info("Evaluating model...")
 
     # Transform test data
@@ -84,11 +85,8 @@ def main():
         logger.info("\nTraining model...")
 
         # Create custom training data structure
-        intents_data = {
-            'intents': []  # Add your actual intents structure if needed
-        }
 
-        vectorizer, model = train_model(intents_data)
+        vectorizer, model = train_model()
         logger.info("✓ Model trained successfully!")
 
     except Exception as e:
@@ -131,5 +129,4 @@ def main():
 
 if __name__ == "__main__":
     success = main()
-
     sys.exit(0 if success else 1)
