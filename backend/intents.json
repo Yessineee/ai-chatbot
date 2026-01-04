@@ -10,7 +10,10 @@
         "blabla"
       ],
       "responses": [
-        "Je n’ai pas bien compris votre demande 🤔. Pouvez-vous reformuler ou préciser votre question ? "
+        "Je n’ai pas bien compris votre demande 🤔. Pouvez-vous reformuler ou préciser votre question ? ",
+        "I didn't quite understand that. Could you rephrase your question?",
+        "Désolé, je n'ai pas compris. Pouvez-vous être plus précis ?",
+        "I'm not sure what you mean. Can you provide more details?"
       ]
     },
     {
@@ -37,7 +40,13 @@
         "Bonsoir",
         "Coucou",
         "Hola",
-        "Sup"
+        "Sup",
+        "hi there",
+        "hey there",
+        "good day",
+        "morning",
+        "afternoon",
+        "evening"
       ],
       "responses": [
         "Bonjour 👋 Je suis l’assistant virtuel de l’entreprise. Comment puis-je vous aider aujourd’hui ?",
@@ -45,7 +54,8 @@
         "Hi there! What can I do for you?",
         "Bonjour! Comment puis-je vous aider?",
         "Hey! I'm here to assist you.",
-        "Greetings! How may I help?"
+        "Greetings! How may I help?",
+        "Salut! En quoi puis-je vous être utile ?"
       ]
     },
     {
@@ -63,11 +73,20 @@
         "comment postuler pour un stage",
         "internship",
         "i am looking for an internship",
-        "internship opportunity"
+        "internship opportunity",
+        "looking for internship",
+        "do you have internships",
+        "internship positions",
+        "summer internship",
+        "stage d'été"
       ],
       "responses":[
         "Nous proposons régulièrement des stages PFE et des stages d’été. ",
-        "Vous pouvez consulter nos offres sur notre site officiel ou nous envoyer votre CV."
+        "Vous pouvez consulter nos offres sur notre site officiel ou nous envoyer votre CV.",
+        "Nous proposons régulièrement des stages PFE et des stages d'été. Vous pouvez consulter nos offres sur notre site officiel ou nous envoyer votre CV à recrutement@entreprise.com.",
+        "We offer internship opportunities throughout the year. Please send your CV to careers@company.com or check our website for current openings.",
+        "Pour postuler à un stage, envoyez-nous votre CV et lettre de motivation. Nous vous contacterons sous peu !",
+        "Nous sommes toujours à la recherche de talents ! Consultez notre page carrières pour voir les stages disponibles."
       ]
     },
     {
@@ -91,13 +110,19 @@
         "À bientôt",
         "Salut",
         "Ciao",
-        "Adios"
+        "Adios",
+        "peace out",
+        "i'm leaving",
+        "farewell",
+        "see ya",
+        "later"
       ],
       "responses": [
-        "Goodbye! Have a great day!",
+        "Goodbye! Have a great day! 😊",
         "See you later! Take care!",
-        "Au revoir! À bientôt!",
+        "Au revoir! À bientôt! 👋",
         "Bye! Feel free to come back anytime!",
+        "À la prochaine ! N'hésitez pas à revenir.",
         "Take care! It was nice talking to you!"
       ]
     },
@@ -113,12 +138,20 @@
         "Thank you so much",
         "Thanks a lot",
         "I appreciate it",
-        "Much appreciated",
+        "much appreciated",
         "Merci",
         "Merci beaucoup",
         "Thanks!",
-        "Thx",
-        "Ty"
+        "Ty",
+        "thx",
+        "ty",
+        "tysm",
+        "appreciate it",
+        "thanks for your help",
+        "merci pour ton aide",
+         "merci bien",
+        "many thanks",
+        "cheers"
       ],
       "responses": [
         "Avec plaisir 😊 N’hésitez pas si vous avez d’autres questions.",
@@ -127,6 +160,7 @@
         "My pleasure!",
         "Anytime!",
         "De rien!",
+        "No problem at all! 😊",
         "Glad I could assist!"
       ]
     },
@@ -147,6 +181,7 @@
         "What features do you have"
       ],
       "responses": [
+        "Je suis un assistant virtuel intelligent conçu pour vous aider. Je peux répondre à vos questions, effectuer des calculs, chercher des informations sur Wikipedia, vous donner l'heure, et bien plus encore !",
         "Je suis un assistant virtuel conçu pour répondre à vos questions.",
         "Je suis un chatbot intelligent qui peut vous aider avec des informations générales.",
         "I'm an AI assistant that can help you with various tasks! I can answer questions, provide information from Wikipedia, perform calculations, tell you the time, and much more. Just ask!",
@@ -157,16 +192,24 @@
     {
       "tag": "help",
       "patterns": [
-        "Help",
+        "help",
         "I need help",
         "Can you help me",
         "Help me",
         "Assist me",
         "I'm stuck",
         "What should I do",
-        "Guide me"
+        "guide me",
+        "aide",
+        "j'ai besoin d'aide",
+        "peux-tu m'aider",
+        "assistance",
+        "support",
+        "can you assist",
+        "need assistance"
       ],
       "responses": [
+        "Bien sûr ! Je suis là pour vous aider. De quoi avez-vous besoin ?",
         "Of course! I'm here to help. What do you need assistance with?",
         "I'd be happy to help! What can I do for you?",
         "Sure! Tell me what you need help with and I'll do my best to assist.",
@@ -185,9 +228,11 @@
         "Comment tu t'appelles"
       ],
       "responses": [
+        "Je suis votre Assistant IA ! Vous pouvez m'appeler comme vous voulez.",
         "I'm your AI Assistant! You can call me whatever you'd like.",
         "I'm an AI chatbot created to help you. I don't have a specific name, but you can call me Assistant!",
-        "I'm your friendly AI helper! No official name, but I'm here to assist you."
+        "I'm your friendly AI helper! No official name, but I'm here to assist you.",
+        "On m'appelle simplement 'Assistant'. Comment puis-je vous aider ?"
       ]
     },
     {
@@ -197,12 +242,17 @@
         "What is your age",
         "When were you created",
         "When is your birthday",
-        "How long have you existed"
+        "How long have you existed",
+        "your age",
+        "quel âge as-tu",
+        "quand as-tu été créé"
       ],
       "responses": [
+        "Je suis une IA, donc je ne vieillis pas comme les humains ! J'ai été créé récemment pour aider des gens comme vous.",
         "I'm an AI, so I don't age like humans do! But I was created recently to help people like you.",
         "I don't have an age in the traditional sense. I'm constantly learning and improving!",
-        "Age is just a number for AI! I'm here to help regardless of how 'old' I am."
+        "Age is just a number for AI! I'm here to help regardless of how 'old' I am.",
+        "Je n'ai pas vraiment d'âge, mais je suis toujours à jour pour vous aider !"
       ]
     },
     {
@@ -221,7 +271,8 @@
       "responses": [
         "I don't have access to real-time weather data yet, but you can check weather.com or your local weather service!",
         "I can't check the weather right now, but try asking your phone's weather app or checking online!",
-        "Weather information isn't available to me at the moment. Try checking a weather website or app!"
+        "Weather information isn't available to me at the moment. Try checking a weather website or app!",
+        "Pour la météo, je vous recommande de consulter une application météo ou un site spécialisé."
       ]
     },
     {
@@ -233,14 +284,22 @@
         "Do you know any jokes",
         "Tell me something funny",
         "I need a laugh",
-        "Joke please"
+        "joke please",
+        "raconte une blague",
+        "fais-moi rire",
+        "blague",
+        "dis quelque chose de drôle",
+        "humor",
+        "be funny"
       ],
       "responses": [
         "Why don't scientists trust atoms? Because they make up everything!",
         "Why did the scarecrow win an award? He was outstanding in his field!",
         "What do you call a fake noodle? An impasta!",
         "Why don't eggs tell jokes? They'd crack each other up!",
-        "What do you call a bear with no teeth? A gummy bear!"
+        "What do you call a bear with no teeth? A gummy bear!",
+        "Pourquoi les plongeurs plongent-ils toujours en arrière ? Parce que sinon ils tombent dans le bateau ! 😂",
+        "Qu'est-ce qu'un crocodile qui surveille une maison ? Un Lacoste de sécurité ! 🐊"
       ]
     },
     {
@@ -256,14 +315,25 @@
         "Fantastic",
         "Cool",
         "Nice",
-        "Super"
+        "Super",
+        "brilliant",
+        "outstanding",
+        "impressive",
+        "c'est super",
+        "c'est génial",
+        "parfait",
+        "excellent",
+        "très bien",
+        "bravo"
       ],
       "responses": [
+        "Merci ! Je suis content que ça vous plaise ! 😊",
         "I'm glad you think so!",
         "Great to hear!",
         "Awesome! Anything else I can help with?",
         "Thanks! Let me know if you need anything else!",
-        "Happy to help! 😊"
+        "Happy to help! 😊",
+        "Content de pouvoir vous aider ! 🙂"
       ]
     },
     {
@@ -277,7 +347,15 @@
         "This is wrong",
         "That's incorrect",
         "No",
-        "Nope"
+        "nope",
+        "wrong",
+        "terrible",
+        "awful",
+        "c'est nul",
+        "pas bien",
+        "incorrect",
+        "mauvais",
+        "ça craint"
       ],
       "responses": [
         "I'm sorry to hear that. Can I help you with something else?",
@@ -285,7 +363,9 @@
         "I apologize. What can I do better?",
         "Sorry about that! Let me know how I can improve.",
         "Sorry! Let me try to help you better.",
-        "I understand. Would you like to try something different?"
+        "I understand. Would you like to try something different?",
+        "Désolé ! Comment puis-je mieux vous aider ?",
+        "Je suis désolé. Pouvez-vous me dire ce que je peux améliorer ?",
       ]
     },
     {
@@ -296,12 +376,19 @@
         "What else can you do",
         "Show me options",
         "What are my options",
-        "Give me examples"
+        "Give me examples",
+        "que puis-je demander",
+        "quelles questions puis-je poser",
+        "exemples",
+        "montre-moi les options",
+        "what should i ask"
       ],
       "responses": [
+        "Vous pouvez me demander : 🔍 'Recherche Python sur Wikipedia', ➕ 'Calcule 15*7', 🕐 'Quelle heure est-il ?', 😄 'Raconte une blague', ou simplement discuter !",
         "You can ask me to: search Wikipedia, do calculations, tell time, tell jokes, or just chat! Try asking 'tell me about Python' or 'what is 5+3'.",
         "I can help with: information searches, math, time/date, jokes, and conversations. Ask me anything!",
-        "Try these: 'search Wikipedia for artificial intelligence', 'calculate 15*7', 'what time is it', or 'tell me a joke'!"
+        "Try these: 'search Wikipedia for artificial intelligence', 'calculate 15*7', 'what time is it', or 'tell me a joke'!",
+        "Essayez : 'Qui est Albert Einstein ?', 'Calcule 100/5', 'Quelle heure est-il ?', ou 'Raconte une blague' !"
       ]
     },
     {
@@ -343,11 +430,15 @@
         "contact details"
       ],
       "responses": [
-        "Vous pouvez nous contacter par email à contact@entreprise.com ",
-        "ou par téléphone au +216 XX XXX XXX."
+        "Vous pouvez nous contacter par email à contact@entreprise.com ou par téléphone au +216 XX XXX XXX.",
+        "Contact us at: 📧 contact@company.com or 📞 +216 XX XXX XXX",
+        "Pour nous joindre : Email - contact@entreprise.com | Téléphone - +216 XX XXX XXX",
+        "Get in touch: Email us at contact@company.com or call +216 XX XXX XXX",
+        "Vous pouvez nous contacter par email à contact@entreprise.com ou par téléphone au +216 XX XXX XXX.",
       ]
     }
   ]
 
 }
+
 
