@@ -36,6 +36,8 @@ class SessionManager:
             self.sessions[session_id] = {
                 "last_intent": None,
                 "email": None,
+                "user_name": None,  # NEW: Store user's name
+                "name_asked": False,  # NEW: Track if we've asked for name
                 "conversation_history": [],
                 "created_at": datetime.now(),
                 "last_activity": datetime.now()
@@ -53,6 +55,8 @@ class SessionManager:
                 self.sessions[session_id] = {
                     "last_intent": None,
                     "email": None,
+                    "user_name": None,  # NEW: Store user's name
+                    "name_asked": False,  # NEW: Track if we've asked for name
                     "conversation_history": [],
                     "created_at": datetime.now(),
                     "last_activity": datetime.now()
@@ -67,6 +71,8 @@ class SessionManager:
                 self.sessions[session_id] = {
                     "last_intent": None,
                     "email": None,
+                    "user_name": None,  # NEW: Store user's name
+                    "name_asked": False,  # NEW: Track if we've asked for name
                     "conversation_history": [],
                     "created_at": datetime.now(),
                     "last_activity": datetime.now()
@@ -77,6 +83,8 @@ class SessionManager:
             session["last_activity"] = datetime.now()
             return session
 
+
+    
     def update_session(self, session_id: str, **kwargs) -> bool:
         
         with self.lock:
@@ -85,7 +93,7 @@ class SessionManager:
                 return False
 
             # Update allowed fields
-            allowed_fields = ["last_intent", "email"]
+            allowed_fields = ["last_intent", "email","user_name", "name_asked"]
             for key, value in kwargs.items():
                 if key in allowed_fields:
                     session[key] = value
@@ -194,5 +202,6 @@ if __name__ == "__main__":
     stats = session_manager.get_stats()
 
     print(f"Stats: {stats}")
+
 
 
