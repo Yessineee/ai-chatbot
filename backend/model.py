@@ -144,7 +144,7 @@ def calc(expr):
 
 def train_model():
     
-   logger.info("Training model...")
+    logger.info("Training model...")
     
     try:
         # questions and labels are already loaded!
@@ -168,11 +168,9 @@ def train_model():
         model.fit(X_vec, labels)
 
         return vectorizer, model
-    
     except Exception as e:
         logger.error(f"Error training model: {e}")
         raise
-
 
 
 def save_model(vectorizer, model, path=MODEL_PATH):
@@ -464,6 +462,7 @@ if __name__ == "__main__":
     save_model(vec, mod)
 
     print(f"Model trained and saved to {MODEL_PATH}")
+
 
 
 
