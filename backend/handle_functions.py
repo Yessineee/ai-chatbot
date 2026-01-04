@@ -87,10 +87,6 @@ def handle_email_recall(message,session):
         else:
             return "Je n'ai pas encore votre email. Vous pouvez me le donner 😊"
 
-        # if conversation_context.get("email"):
-        #     return f"Votre email est : {conversation_context['email']}"
-        # else:
-        #     return "Je n’ai pas encore votre email. Vous pouvez me le donner 😊"
 
     return None
 
@@ -150,3 +146,4 @@ def validate_email(email):
 
     pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
     return re.match(pattern, email) is not None
+
