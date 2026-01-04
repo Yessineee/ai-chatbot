@@ -4,6 +4,7 @@ import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import TypingIndicator from "./TypingIndicator";
 import WelcomeScreen from "./WelcomeScreen";
+import WelcomeNamePage from "./WelcomeNamePage";
 import { set } from "date-fns";
 // import SuggestedPrompts from "./SuggestedPrompts";
 
@@ -31,6 +32,8 @@ const ChatInterface = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [showNamePage, setShowNamePage] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Check if this is the first message (welcome state)
@@ -47,8 +50,19 @@ const ChatInterface = () => {
   // Load session ID from localStorage on mount
   useEffect(() => {
     const savedSessionId = localStorage.getItem("chatbot_session_id");
-    if (savedSessionId) {
+    const savedUserName = localStorage.getItem("chatbot_user_name");
+    if (savedSessionId && savedUserName) {
       setSessionId(savedSessionId);
+      setUserName(savedUserName);
+      setShowNamePage(false);
+      // Add welcome back message
+      setMessages([
+        {
+          id: "1",
+          text: `Welcome back, ${savedUserName}! 😊 How can I help you today?`,
+          isUser: false,
+        },
+      ]);
       console.log("Loaded existing session:", savedSessionId.substring(0, 8) + "...");
     }
   }, []);
@@ -60,6 +74,127 @@ const ChatInterface = () => {
       console.log("Saved session:", sessionId.substring(0, 8) + "...");
     }
   }, [sessionId]);
+   useEffect(() => {
+    if (userName) {
+      localStorage.setItem("chatbot_user_name", userName);
+      console.log("Saved user name:", userName);
+    }
+  }, [userName]);
+
+  // Handle name submission from welcome page
+  const handleNameSubmit = async (name: string) => {
+    setUserName(name);
+    setShowNamePage(false);
+
+    try {
+      // Initialize chat session with name
+      const response = await fetch(`${API_BASE_URL}/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      const newSessionId = data.session_id;
+      setSessionId(newSessionId);
+
+      // Send the user's name as first message with the NEW session ID
+      await sendMessageWithSession(name, newSessionId);
+      
+    } catch (error) {
+      console.error("Error starting session:", error);
+      // Fallback: start with a generic welcome message
+      setMessages([
+        {
+          id: "1",
+          text: `Nice to meet you, ${name}! 😊 How can I help you today?`,
+          isUser: false,
+        },
+      ]);
+    }
+  };
+
+  // Helper function to send message with specific session ID
+  const sendMessageWithSession = async (text: string, useSessionId: string) => {
+    if (!text.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text,
+      isUser: true,
+      isNew: true,
+    };
+
+    setMessages((prev) => [
+      ...prev.map((m) => ({ ...m, isNew: false })),
+      userMessage,
+    ]);
+
+    setIsTyping(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          message: text, 
+          session_id: useSessionId  // Use the provided session ID
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+
+      // Update user name if provided by backend
+      if (data.user_name && !userName) {
+        setUserName(data.user_name);
+      }
+
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: data.response,
+        isUser: false,
+        isNew: true,
+        intent: data.intent,
+      };
+
+      setMessages((prev) => [
+        ...prev.map((m) => ({ ...m, isNew: false })),
+        aiResponse,
+      ]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+
+      let errorText = "Erreur de connexion au serveur.";
+      if (error instanceof Error) {
+        if (error.message.includes("Failed to fetch")) {
+          errorText = "Impossible de se connecter au serveur. Vérifiez votre connexion.";
+        } else {
+          errorText = `Erreur: ${error.message}`;
+        }
+      }
+
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: errorText,
+        isUser: false,
+        isNew: true,
+      };
+
+      setMessages((prev) => [...prev, errorMessage]);
+      setError(errorText);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+
 
 
   const handleSend = async (text: string) => {
@@ -173,10 +308,15 @@ const ChatInterface = () => {
           isUser: false,
         },
       ]);
+      // Clear local state
+      setMessages([]);
       setSessionId(null);
+      setUserName(null);
+      setShowNamePage(true);
       localStorage.removeItem("chatbot_session_id");
+      localStorage.removeItem("chatbot_user_name");
       setError(null);
-      
+
       console.log("Chat cleared");
     }
   };
@@ -184,7 +324,10 @@ const ChatInterface = () => {
   // const handleSuggestedPrompt = (prompt: string) => {
   //   handleSend(prompt);
   // };
-
+// Show name page if no user name
+  if (showNamePage) {
+    return <WelcomeNamePage onNameSubmit={handleNameSubmit} />;
+  }
   return (
     <div className="flex flex-col h-screen bg-background relative overflow-hidden">
       {/* Animated background elements */}
