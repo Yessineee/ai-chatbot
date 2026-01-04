@@ -103,6 +103,65 @@ def handle_errors(f):
     return wrapper
 
 
+
+
+def extract_name(message):
+    """Extract user's name from their message."""
+    message_clean = message.lower().strip()
+
+    # Remove common phrases
+    patterns_to_remove = [
+        r"my name is ", r"i am ", r"i'm ", r"call me ",
+        r"it's ", r"this is ", r"je m'appelle ", r"je suis ",
+        r"c'est ", r"mon nom est "
+    ]
+
+    for pattern in patterns_to_remove:
+        message = re.sub(pattern, "", message_clean, flags=re.IGNORECASE)
+
+    # Clean up
+    message_clean = re.sub(r"[^\w\s]", "", message_clean).strip()
+    if not message_clean:
+        message_clean = re.sub(r"[^\w\s]", "", message).strip()
+
+    # Extract name
+    words = message_clean.split()
+    if len(words) == 1:
+        return words[0].capitalize()
+    elif len(words) == 2:
+        return " ".join([w.capitalize() for w in words])
+    elif len(words) > 0:
+        return words[0].capitalize()
+
+    return message.strip().capitalize() if message.strip() else None
+
+
+def personalize_response(response, user_name):
+    
+    if not user_name:
+        return response
+
+    # Add name to certain responses
+    personalizations = {
+        "Bonjour": f"Bonjour {user_name}",
+        "Hello!": f"Hello {user_name}!",
+        "Hi there!": f"Hi {user_name}!",
+        "Avec plaisir": f"Avec plaisir {user_name}",
+        "You're welcome!": f"You're welcome, {user_name}!",
+    }
+
+    for original, personalized in personalizations.items():
+        if original in response:
+            response = response.replace(original, personalized)
+            break
+
+    return response
+
+
+
+
+
+
 @app.route('/', methods=['GET'])
 def home():
     """Health check endpoint"""
@@ -130,6 +189,39 @@ def health():
         "sessions": stats,
         "timestamp": datetime.utcnow().isoformat()
     })
+
+
+@app.route('/start', methods=['POST'])
+@handle_errors
+def start_conversation():
+   
+    # Create new session
+    session_id = session_manager.create_session()
+    logger.info(f"Started new conversation: {session_id}")
+
+    # Get the session to verify it was created
+    session = session_manager.get_session(session_id)
+    logger.info(f"Session after creation - name_asked: {session.get('name_asked')}, user_name: {session.get('user_name')}")
+
+    # IMPORTANT: Mark that we're asking for the name
+    result=session_manager.update_session(session_id, name_asked=True)
+    logger.info(f"Update session result: {result}")
+
+    # Verify the update worked
+    session = session_manager.get_session(session_id)
+    logger.info(f"Session after update - name_asked: {session.get('name_asked')}, user_name: {session.get('user_name')}")
+
+    # Return greeting that asks for name
+    greeting = "Hello! 👋 I'm your AI assistant. What should I call you?"
+
+    return jsonify({
+        "response": greeting,
+        "session_id": session_id,
+        "ask_for_name": True,
+        "timestamp": datetime.utcnow().isoformat()
+    })
+
+
 
 
 @app.route('/chat', methods=['POST'])
@@ -168,12 +260,64 @@ def chat():
             "session_id": session_id
         }), 400
 
+    # DEBUG: Log session state
+    logger.info(f"Session state - name_asked: {session.get('name_asked')}, user_name: {session.get('user_name')}")
+    logger.info(f"Received message: {message}")
+
+    if session.get("name_asked") is True and session.get("user_name") is None:
+        logger.info("Processing message as name input")
+        # This is their response to "What should I call you?"
+        # Extract name from their message
+        name = extract_name(message)
+        if name:
+            logger.info(f"Extracted name: {name}")
+    
+            success=session_manager.update_session(session_id, user_name=name)
+            logger.info(f"Update session result: {success}")
+            response = f"Nice to meet you, {name}! 😊 How can I help you today?"
+            detected_intent = "name_introduction"
+    
+            # Save to history
+            session_manager.add_to_history(session_id, message, response, intent=detected_intent)
+    
+            return jsonify({
+                "response": response,
+                "session_id": session_id,
+                "intent": detected_intent,
+                "user_name": name,
+                "timestamp": datetime.utcnow().isoformat()
+            })
+        else:
+            logger.warning(f"Could not extract name from: {message}")
+            # If we can't extract a name, use the message as-is
+            name = message.capitalize()
+            session_manager.update_session(session_id, user_name=name)
+            response = f"Nice to meet you, {name}! 😊 How can I help you today?"
+            detected_intent = "name_introduction"
+            
+            session_manager.add_to_history(session_id, message, response, intent=detected_intent)
+            
+            return jsonify({
+                "response": response,
+                "session_id": session_id,
+                "intent": detected_intent,
+                "user_name": name,
+                "timestamp": datetime.utcnow().isoformat()
+            })
+
+    # Normal chat flow - name already set
+    logger.info(f"Processing as normal chat message")
+
+
+    
     logger.info(f"Session {session_id[:8]}... received message: {message[:50]}...")
-    print("CHAT ENDPOINT HIT")
     
     try:
-        response, detected_intent, email_extracted = chatbot_enhanced(message,session,threshold=0.3)
+        response, detected_intent, email_extracted = chatbot_enhanced(message,session,threshold=0.2)
+        user_name = session.get("user_name")
         
+        if user_name and detected_intent in ["greeting", "thanks"]:
+            response = personalize_response(response, user_name)
 
     except Exception as e:
         logger.error(f"Error getting chatbot response: {e}", exc_info=True)
@@ -195,12 +339,7 @@ def chat():
         logger.debug(f"Updated session {session_id[:8]}... with: {updates}")
 
     # Save conversation to history
-    session_manager.add_to_history(
-        session_id,
-        message,
-        response,
-        intent=detected_intent
-    )
+    session_manager.add_to_history(session_id, message,response,intent=detected_intent)
 
     logger.info(f"Session {session_id[:8]}... response: {response[:50]}... (intent: {detected_intent})")
 
@@ -208,6 +347,7 @@ def chat():
         "response": response,
         "session_id": session_id,
         "intent": detected_intent,
+        "user_name": session.get("user_name"),
         "timestamp": datetime.utcnow().isoformat()
     })
 
@@ -309,6 +449,7 @@ if __name__ == '__main__':
     logger.info("Starting chatbot server...")
     logger.info(f"API Version: {API_VERSION}")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
 
