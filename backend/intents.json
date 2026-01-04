@@ -1,0 +1,369 @@
+{
+  "intents": [
+    {
+      "tag": "unknown",
+      "patterns": [
+        "asdfgh",
+        "je sais pas",
+        "n'importe quoi",
+        "aucune idée",
+        "blabla"
+      ],
+      "responses": [
+        "Je n’ai pas bien compris votre demande 🤔. Pouvez-vous reformuler ou préciser votre question ? "
+      ]
+    },
+    {
+      "tag": "greeting",
+      "patterns": [
+        "bonjour",
+        "salut",
+        "bonsoir",
+        "bonjour comment ca va",
+        "salut j'ai une question",
+        "hello",
+        "Hi",
+        "Hello",
+        "Hey",
+        "Good morning",
+        "Good afternoon",
+        "Good evening",
+        "What's up",
+        "Howdy",
+        "Greetings",
+        "Yo",
+        "Salut",
+        "Bonjour",
+        "Bonsoir",
+        "Coucou",
+        "Hola",
+        "Sup"
+      ],
+      "responses": [
+        "Bonjour 👋 Je suis l’assistant virtuel de l’entreprise. Comment puis-je vous aider aujourd’hui ?",
+        "Hello! How can I help you today?",
+        "Hi there! What can I do for you?",
+        "Bonjour! Comment puis-je vous aider?",
+        "Hey! I'm here to assist you.",
+        "Greetings! How may I help?"
+      ]
+    },
+    {
+      "tag": "stage",
+      "patterns": [
+        "je cherche un stage",
+        "stage pfe",
+        "je veux un stage de fin d'etudes",
+        "comment trouver un stage",
+        "je veux faire un stage",
+        "est ce que vous proposez des stages",
+        "je suis etudiant et je cherche un stage pfe",
+        "avez vous des offres de stage",
+        "stage de fin d'études",
+        "comment postuler pour un stage",
+        "internship",
+        "i am looking for an internship",
+        "internship opportunity"
+      ],
+      "responses":[
+        "Nous proposons régulièrement des stages PFE et des stages d’été. ",
+        "Vous pouvez consulter nos offres sur notre site officiel ou nous envoyer votre CV."
+      ]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": [
+        "au revoir",
+        "bye",
+        "à bientôt",
+        "bonne journée",
+        "Bye",
+        "Goodbye",
+        "See you",
+        "See you later",
+        "Talk to you later",
+        "Gotta go",
+        "Take care",
+        "Catch you later",
+        "Au revoir",
+        "À bientôt",
+        "Salut",
+        "Ciao",
+        "Adios"
+      ],
+      "responses": [
+        "Goodbye! Have a great day!",
+        "See you later! Take care!",
+        "Au revoir! À bientôt!",
+        "Bye! Feel free to come back anytime!",
+        "Take care! It was nice talking to you!"
+      ]
+    },
+    {
+      "tag": "thanks",
+      "patterns": [
+        "merci",
+        "merci beaucoup",
+        "thanks",
+        "je vous remercie",
+        "Thank you",
+        "Thanks",
+        "Thank you so much",
+        "Thanks a lot",
+        "I appreciate it",
+        "Much appreciated",
+        "Merci",
+        "Merci beaucoup",
+        "Thanks!",
+        "Thx",
+        "Ty"
+      ],
+      "responses": [
+        "Avec plaisir 😊 N’hésitez pas si vous avez d’autres questions.",
+        "You're welcome!",
+        "Happy to help!",
+        "My pleasure!",
+        "Anytime!",
+        "De rien!",
+        "Glad I could assist!"
+      ]
+    },
+    {
+      "tag": "about",
+      "patterns": [
+        "qui es-tu",
+        "c'est quoi ton rôle",
+        "que fais-tu",
+        "What can you do",
+        "What are your capabilities",
+        "What do you do",
+        "Tell me about yourself",
+        "What are you",
+        "Who are you",
+        "What is your purpose",
+        "How can you help me",
+        "What features do you have"
+      ],
+      "responses": [
+        "Je suis un assistant virtuel conçu pour répondre à vos questions.",
+        "Je suis un chatbot intelligent qui peut vous aider avec des informations générales.",
+        "I'm an AI assistant that can help you with various tasks! I can answer questions, provide information from Wikipedia, perform calculations, tell you the time, and much more. Just ask!",
+        "I can help with many things: answer questions, search Wikipedia, do math calculations, tell time, and have conversations. What would you like help with?",
+        "I'm your AI assistant! I can search for information, perform calculations, tell you the current time, and chat with you. Try asking me something!"
+      ]
+    },
+    {
+      "tag": "help",
+      "patterns": [
+        "Help",
+        "I need help",
+        "Can you help me",
+        "Help me",
+        "Assist me",
+        "I'm stuck",
+        "What should I do",
+        "Guide me"
+      ],
+      "responses": [
+        "Of course! I'm here to help. What do you need assistance with?",
+        "I'd be happy to help! What can I do for you?",
+        "Sure! Tell me what you need help with and I'll do my best to assist.",
+        "I'm here for you! What would you like help with?"
+      ]
+    },
+    {
+      "tag": "name",
+      "patterns": [
+        "What is your name",
+        "What should I call you",
+        "Do you have a name",
+        "What's your name",
+        "Who are you",
+        "Tell me your name",
+        "Comment tu t'appelles"
+      ],
+      "responses": [
+        "I'm your AI Assistant! You can call me whatever you'd like.",
+        "I'm an AI chatbot created to help you. I don't have a specific name, but you can call me Assistant!",
+        "I'm your friendly AI helper! No official name, but I'm here to assist you."
+      ]
+    },
+    {
+      "tag": "age",
+      "patterns": [
+        "How old are you",
+        "What is your age",
+        "When were you created",
+        "When is your birthday",
+        "How long have you existed"
+      ],
+      "responses": [
+        "I'm an AI, so I don't age like humans do! But I was created recently to help people like you.",
+        "I don't have an age in the traditional sense. I'm constantly learning and improving!",
+        "Age is just a number for AI! I'm here to help regardless of how 'old' I am."
+      ]
+    },
+    {
+      "tag": "weather",
+      "patterns": [
+        "What's the weather",
+        "How's the weather",
+        "Is it raining",
+        "Will it rain today",
+        "Weather forecast",
+        "Is it sunny",
+        "What's the temperature",
+        "How hot is it",
+        "How cold is it"
+      ],
+      "responses": [
+        "I don't have access to real-time weather data yet, but you can check weather.com or your local weather service!",
+        "I can't check the weather right now, but try asking your phone's weather app or checking online!",
+        "Weather information isn't available to me at the moment. Try checking a weather website or app!"
+      ]
+    },
+    {
+      "tag": "joke",
+      "patterns": [
+        "Tell me a joke",
+        "Make me laugh",
+        "Say something funny",
+        "Do you know any jokes",
+        "Tell me something funny",
+        "I need a laugh",
+        "Joke please"
+      ],
+      "responses": [
+        "Why don't scientists trust atoms? Because they make up everything!",
+        "Why did the scarecrow win an award? He was outstanding in his field!",
+        "What do you call a fake noodle? An impasta!",
+        "Why don't eggs tell jokes? They'd crack each other up!",
+        "What do you call a bear with no teeth? A gummy bear!"
+      ]
+    },
+    {
+      "tag": "positive",
+      "patterns": [
+        "That's great",
+        "That's good",
+        "Awesome",
+        "Perfect",
+        "Excellent",
+        "Amazing",
+        "Wonderful",
+        "Fantastic",
+        "Cool",
+        "Nice",
+        "Super"
+      ],
+      "responses": [
+        "I'm glad you think so!",
+        "Great to hear!",
+        "Awesome! Anything else I can help with?",
+        "Thanks! Let me know if you need anything else!",
+        "Happy to help! 😊"
+      ]
+    },
+    {
+      "tag": "negative",
+      "patterns": [
+        "That's bad",
+        "That's not good",
+        "That sucks",
+        "I don't like it",
+        "Not helpful",
+        "This is wrong",
+        "That's incorrect",
+        "No",
+        "Nope"
+      ],
+      "responses": [
+        "I'm sorry to hear that. Can I help you with something else?",
+        "I apologize if that wasn't helpful. What can I do better?",
+        "I apologize. What can I do better?",
+        "Sorry about that! Let me know how I can improve.",
+        "Sorry! Let me try to help you better.",
+        "I understand. Would you like to try something different?"
+      ]
+    },
+    {
+      "tag": "options",
+      "patterns": [
+        "What can I ask",
+        "What questions can I ask",
+        "What else can you do",
+        "Show me options",
+        "What are my options",
+        "Give me examples"
+      ],
+      "responses": [
+        "You can ask me to: search Wikipedia, do calculations, tell time, tell jokes, or just chat! Try asking 'tell me about Python' or 'what is 5+3'.",
+        "I can help with: information searches, math, time/date, jokes, and conversations. Ask me anything!",
+        "Try these: 'search Wikipedia for artificial intelligence', 'calculate 15*7', 'what time is it', or 'tell me a joke'!"
+      ]
+    },
+    {
+      "tag": "wikipedia_search",
+      "patterns": [
+        "Search Wikipedia for",
+        "Look up on Wikipedia",
+        "Wikipedia",
+        "Find on Wikipedia",
+        "Tell me about",
+        "What is",
+        "Who is",
+        "Explain",
+        "Information about",
+        "Search for"
+      ],
+      "responses": [
+        "Let me search Wikipedia for that...",
+        "Searching Wikipedia...",
+        "I'll look that up for you..."
+      ]
+    },
+    {
+      "tag": "calculator",
+      "patterns": [
+        "Calculate",
+        "5+3", "10*2",
+        "What is",
+        "Solve",
+        "Math",
+        "Add",
+        "Subtract",
+        "Multiply",
+        "Divide",
+        "Plus",
+        "Minus"
+      ],
+      "responses": [
+        "Calculating...",
+        "Let me solve that...",
+        "Let me calculate that for you...",
+        "Calculating...",
+        "Here's the result:"
+      ]
+    },
+    {
+      "tag": "contact",
+      "patterns": [
+        "comment vous contacter",
+        "adresse email",
+        "numero de telephone",
+        "contact",
+        "email",
+        "telephone",
+        "numéro",
+        "comment vous contacter",
+        "comment puis-je vous joindre",
+        "how can i contact you",
+        "contact details"
+      ],
+      "responses": [
+        "Vous pouvez nous contacter par email à contact@entreprise.com ",
+        "ou par téléphone au +216 XX XXX XXX."
+      ]
+    }
+  ]
+}
