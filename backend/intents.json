@@ -303,26 +303,6 @@
       ]
     },
     {
-      "tag": "wikipedia_search",
-      "patterns": [
-        "Search Wikipedia for",
-        "Look up on Wikipedia",
-        "Wikipedia",
-        "Find on Wikipedia",
-        "Tell me about",
-        "What is",
-        "Who is",
-        "Explain",
-        "Information about",
-        "Search for"
-      ],
-      "responses": [
-        "Let me search Wikipedia for that...",
-        "Searching Wikipedia...",
-        "I'll look that up for you..."
-      ]
-    },
-    {
       "tag": "calculator",
       "patterns": [
         "Calculate",
@@ -366,4 +346,5 @@
       ]
     }
   ]
+
 }
