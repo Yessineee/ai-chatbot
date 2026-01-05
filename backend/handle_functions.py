@@ -18,57 +18,124 @@ def normalize_text(text):
 
 
 def handle_wikipedia_search(message):
+    import wikipedia
     try:
-        import wikipedia
+        msg = message.lower().strip()
         # Detect Wikipedia search intent
         patterns = [
             r"(?:search|look up|find|tell me about|what is|who is|explain)\s+(?:on\s+)?(?:wikipedia\s+)?(?:for\s+)?(.+)",
             r"wikipedia\s+(.+)",
             r"(?:information|info)\s+(?:about|on)\s+(.+)"
+            r"search (?:wikipedia |wiki )?for (.+)",
+            r"look up (.+) (?:on |in )?(?:wikipedia|wiki)",
+            r"what is (.+)",
+            r"who is (.+)",
+            r"tell me about (.+)",
+            r"find (?:information )?(?:about |on )?(.+)",
+            r"wikipedia (.+)",
+            r"wiki (.+)",
+            r"(?:search|find|cherche) (.+)",
+            r"recherche (.+)",
+            r"qui est (.+)",
+            r"c'est quoi (.+)",
         ]
 
-        query = None
+        search_query = None
         for pattern in patterns:
             match = re.search(pattern, message.lower())
             if match:
-                query = match.group(1).strip()
+                search_query = match.group(1).strip()
                 break
+        # If no pattern matched, check if it's a simple "what is X" type question
+        if not search_query and msg.startswith(("what is ", "who is ", "tell me about ", "qui est ", "c'est quoi ")):
+            parts = msg.split(None, 2)  # Split into max 3 parts
+            if len(parts) >= 3:
+                search_query = parts[2]
 
-        if not query:
+        if not search_query:
             return None
 
-        logger.info(f"Wikipedia search for: {query}")
+        # Clean up the query
+        search_query = search_query.strip('?.,!').strip()
+
+        # Filter out very short or meaningless queries
+        if len(search_query) < 2 or search_query in ['it', 'that', 'this', 'you', 'me', 'ça', 'cela']:
+            return None
+
+        logger.info(f"Wikipedia search for: {search_query}")
+
+        # Try English first, then French
+        languages = ['en', 'fr']
 
         # Search Wikipedia
-        try:
-            # Get summary (first 3 sentences)
-            summary = wikipedia.summary(query, sentences=3)
+        for lang in languages:
+            try:
+                wikipedia.set_lang(lang)
+                logger.debug(f"Trying language: {lang}")
 
-            # Get page URL
-            page = wikipedia.page(query)
-            url = page.url
+                # First, try to search for the topic
+                search_results = wikipedia.search(search_query, results=5)
 
-            response = f"{summary}\n\nSource: {url}"
-            return response
+                if not search_results:
+                    logger.debug(f"No results in {lang}")
+                    continue
 
-        except wikipedia.exceptions.DisambiguationError as e:
-            # Multiple results found
-            options = e.options[:5]  # Show first 5 options
-            return f"Plusieurs résultats trouvés pour '{query}'. Voulez-vous dire: {', '.join(options)}?"
+                logger.info(f"Found {len(search_results)} results in {lang}: {search_results}")
 
-        except wikipedia.exceptions.PageError:
-            return f"Désolé, je n'ai pas trouvé d'article Wikipedia pour '{query}'. Essayez un autre terme."
+                # Try each search result until one works
+                for result in search_results:
+                    try:
+                        logger.debug(f"Attempting to fetch: {result}")
 
-        except Exception as e:
-            logger.error(f"Wikipedia search error: {e}")
-            return f"Une erreur s'est produite lors de la recherche. Réessayez avec un terme différent."
+                        # Get the page
+                        page = wikipedia.page(result, auto_suggest=False)
 
-    except ImportError:
-        logger.warning("Wikipedia module not installed")
-        return "La recherche Wikipedia n'est pas disponible. Installez: pip install wikipedia"
+                        # Get summary (3 sentences)
+                        summary = wikipedia.summary(result, sentences=3, auto_suggest=False)
+
+                        # Format the response
+                        response = f"📚 **{page.title}**\n\n{summary}\n\n🔗 En savoir plus : {page.url}"
+
+                        logger.info(f"Successfully fetched: {page.title}")
+                        return response
+
+                    except wikipedia.exceptions.DisambiguationError as e:
+                        # Multiple possibilities found - try the first option
+                        logger.debug(f"Disambiguation error for '{result}', trying first option")
+                        if e.options:
+                            try:
+                                first_option = e.options[0]
+                                logger.debug(f"Trying disambiguation option: {first_option}")
+                                page = wikipedia.page(first_option, auto_suggest=False)
+                                summary = wikipedia.summary(first_option, sentences=3, auto_suggest=False)
+
+                                response = f"📚 **{page.title}**\n\n{summary}\n\n🔗 En savoir plus : {page.url}"
+                                logger.info(f"Successfully fetched via disambiguation: {page.title}")
+                                return response
+                            except:
+                                # If first option fails, continue to next result
+                                continue
+
+                    except wikipedia.exceptions.PageError:
+                        # This page doesn't exist, try next result
+                        logger.debug(f"PageError for '{result}', trying next")
+                        continue
+
+                    except Exception as e:
+                        # Any other error, try next result
+                        logger.debug(f"Error fetching '{result}': {e}")
+                        continue
+
+            except Exception as e:
+                logger.debug(f"Error in {lang} search: {e}")
+                continue
+
+            # If we get here, nothing worked
+        logger.warning(f"Could not find Wikipedia article for: {search_query}")
+        return f"Je n'ai pas trouvé d'article Wikipedia clair pour '{search_query}'. Essayez d'être plus précis ou utilisez un autre terme."
 
     except Exception as e:
-        logger.error(f"Error in handle_wikipedia_search: {e}")
+        logger.error(f"Error in handle_wikipedia_search: {e}", exc_info=True)
         return None
 
 
@@ -146,4 +213,5 @@ def validate_email(email):
 
     pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
     return re.match(pattern, email) is not None
+
 
