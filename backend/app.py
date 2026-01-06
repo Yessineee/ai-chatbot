@@ -174,6 +174,13 @@ def home():
     })
 
 
+
+
+@app.route('/ping', methods=['GET'])
+def ping():
+    return "pong", 200
+
+
 @app.route('/health', methods=['GET'])
 def health():
     from model import vectorizer, model
@@ -450,6 +457,7 @@ if __name__ == '__main__':
     logger.info("Starting chatbot server...")
     logger.info(f"API Version: {API_VERSION}")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
 
